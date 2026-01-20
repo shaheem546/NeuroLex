@@ -558,28 +558,36 @@ window.onload = function () {
             const data = await apiRequest('/users/analytics');
             const analytics = data.analytics || {};
 
-            // Update stats
-            document.getElementById('analyticsTotalStudents').textContent = analytics.totalStudents || 0;
-            document.getElementById('analyticsNeedingSupport').textContent = analytics.studentsNeedingSupport || 0;
-            document.getElementById('analyticsActiveStudents').textContent = analytics.activeStudents || 0;
-            document.getElementById('analyticsAvgScore').textContent = Math.round(analytics.overallAverageScore || 0) + '%';
+            // Update stats with null checks
+            const totalEl = document.getElementById('analyticsTotalStudents');
+            const needingEl = document.getElementById('analyticsNeedingSupport');
+            const activeEl = document.getElementById('analyticsActiveStudents');
+            const avgEl = document.getElementById('analyticsAvgScore');
+
+            if (totalEl) totalEl.textContent = analytics.totalStudents || 0;
+            if (needingEl) needingEl.textContent = analytics.studentsNeedingSupport || 0;
+            if (activeEl) activeEl.textContent = analytics.activeStudents || 0;
+            if (avgEl) avgEl.textContent = Math.round(analytics.overallAverageScore || 0) + '%';
 
             // Render charts
             renderDyslexiaTypeChart(analytics.dyslexiaBreakdown || {});
             renderSeverityChart(analytics.severityBreakdown || {});
             renderDyslexiaChancesChart(analytics.dyslexiaChances || {});
 
-            // Populate student table with enhanced View Profile functionality
-            if (typeof populateAnalyticsStudentTable_Enhanced === 'function') {
-                populateAnalyticsStudentTable_Enhanced(analytics.studentsWithProgress || []);
-            } else {
-                populateAnalyticsStudentTable(analytics.studentsWithProgress || []);
+            // Populate student table
+            const analyticsBody = document.getElementById('analyticsStudentTableBody');
+            if (analyticsBody) {
+                if (typeof populateAnalyticsStudentTable_Enhanced === 'function') {
+                    populateAnalyticsStudentTable_Enhanced(analytics.studentsWithProgress || []);
+                } else {
+                    populateAnalyticsStudentTable(analytics.studentsWithProgress || []);
+                }
             }
-
-
         } catch (error) {
-            console.error('Failed to load analytics:', error);
-            showToast(error.message || 'Failed to load analytics', 'error');
+            console.error('Failed to load analytics data:', error);
+            if (window.location.pathname.includes('analytics.html')) {
+                showToast('Failed to load analytics data', 'error');
+            }
         }
     }
 
@@ -847,18 +855,26 @@ window.onload = function () {
         // Count tests completed
         const testsCompleted = students.reduce((sum, s) => sum + (s.progress?.totalSessions || 0), 0);
 
-        // Count improving students (those with increasing scores)
+        // Count improving students
         const improving = students.filter(s => {
             const progress = s.progress || {};
             return progress.averageScore > 50 && progress.averageAccuracy > 60;
         }).length;
 
-        document.getElementById('totalStudents').textContent = total;
-        document.getElementById('needingSupport').textContent = needingSupport;
-        document.getElementById('testsCompleted').textContent = testsCompleted;
-        document.getElementById('activeStudents').textContent = active;
-        document.getElementById('avgPerformance').textContent = avgPerformance + '%';
-        document.getElementById('improvingStudents').textContent = improving;
+        // Add null checks for all dashboard stat elements
+        const totalEl = document.getElementById('totalStudents');
+        const needingEl = document.getElementById('needingSupport');
+        const testsEl = document.getElementById('testsCompleted');
+        const activeEl = document.getElementById('activeStudents');
+        const avgEl = document.getElementById('avgPerformance');
+        const improvingEl = document.getElementById('improvingStudents');
+
+        if (totalEl) totalEl.textContent = total;
+        if (needingEl) needingEl.textContent = needingSupport;
+        if (testsEl) testsEl.textContent = testsCompleted;
+        if (activeEl) activeEl.textContent = active;
+        if (avgEl) avgEl.textContent = avgPerformance + '%';
+        if (improvingEl) improvingEl.textContent = improving;
     }
 
     function renderPerformanceTrendChart(students) {
@@ -1098,7 +1114,7 @@ window.onload = function () {
     }
 
     // Initialize dashboard on load
-    if (dashboardMainSection) {
+    if (dashboardMainSection && dashboardMainSection.style.display !== 'none') {
         loadDashboardData();
     }
 
