@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Consultant Dashboard - Manage students and dyslexia assessments">
+    <title>Analytics - Dyslexia Detection Platform</title>
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- External Stylesheets -->
+    <link rel="stylesheet" href="css/consultant.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <i class="fas fa-brain"></i>
+                <span>NeuroLex</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a class="nav-item" href="consultant-dashboard.html" id="navDashboard">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a class="nav-item" href="students.html" id="navStudents">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>Students</span>
+                </a>
+                <a class="nav-item" href="game/index.html">
+                    <i class="fas fa-clipboard-check"></i>
+                    <span>Assessments</span>
+                </a>
+                <a class="nav-item active" href="analytics.html" id="navAnalytics">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a class="nav-item" href="resources.html" id="navResources">
+                    <i class="fas fa-book-open"></i>
+                    <span>Resources</span>
+                </a>
+                <a class="nav-item" href="settings.html" id="navSettings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+                <a class="nav-item" href="support.html" id="navSupport">
+                    <i class="fas fa-headset"></i>
+                    <span>Support</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a class="nav-item" href="#" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper">
+            <main class="main-content">
+                <!-- Header -->
+                <div class="dashboard-header">
+                    <div class="welcome-text">
+                        <h1>Analytics & Insights</h1>
+                    </div>
+                    <div class="header-actions">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Search students...">
+                        </div>
+                        <button class="notification-btn">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge"></span>
+                        </button>
+                        <button class="logout-btn-header" id="headerLogoutBtn" title="Logout">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dashboard Main Section (Hidden) -->
+                <div id="dashboardMainSection" style="display: none;"></div>
+
+                <!-- Content Grid -->
+                <div class="content-grid">
+                    <!-- Analytics Section -->
+                    <div id="analyticsSection">
+                        <div class="content-header">
+                            <h2>Student Performance Data</h2>
+                            <p class="text-gray">Comprehensive view of assessment results and progress.</p>
+                        </div>
+
+                        <!-- Student Selector -->
+                        <div
+                            style="background: white; padding: 1.5rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 1.5rem;">
+                            <label for="analyticsStudentSelect"
+                                style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: #1a1d29;">Select
+                                Student to View Detailed Analytics:</label>
+                            <select id="analyticsStudentSelect"
+                                style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem; background: white;">
+                                <option value="">-- Select a Student --</option>
+                            </select>
+                        </div>
+
+                        <!-- Student Profile Card (shown when student selected) -->
+                        <div id="studentProfileCard" style="display: none;">
+                            <!-- Student Header -->
+                            <div
+                                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 16px; color: white; margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                                <div style="display: flex; align-items: center; gap: 1.5rem;">
+                                    <div id="profileAvatar"
+                                        style="width: 80px; height: 80px; border-radius: 16px; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 700;">
+                                    </div>
+                                    <div style="flex: 1;">
+                                        <h2 id="profileName" style="font-size: 1.75rem; margin-bottom: 0.5rem;">Student
+                                            Name</h2>
+                                        <div style="display: flex; gap: 2rem; font-size: 0.95rem; opacity: 0.9;">
+                                            <div><i class="fas fa-id-card"></i> ID: <span
+                                                    id="profileStudentId">--</span></div>
+                                            <div><i class="fas fa-graduation-cap"></i> Grade: <span
+                                                    id="profileGrade">--</span></div>
+                                            <div><i class="fas fa-envelope"></i> <span id="profileEmail">--</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Dyslexia Assessment Results -->
+                            <div
+                                style="background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 1.5rem;">
+                                <h3
+                                    style="margin-bottom: 1.5rem; color: #1a1d29; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-brain" style="color: #7c3aed;"></i>
+                                    Dyslexia Assessment
+                                </h3>
+                                <div
+                                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                                    <div
+                                        style="padding: 1.25rem; background: #f9fafb; border-radius: 12px; border-left: 4px solid #7c3aed;">
+                                        <div style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem;">Dyslexia
+                                            Type</div>
+                                        <div id="profileDyslexiaType"
+                                            style="font-size: 1.25rem; font-weight: 600; color: #1a1d29;">--</div>
+                                    </div>
+                                    <div
+                                        style="padding: 1.25rem; background: #f9fafb; border-radius: 12px; border-left: 4px solid #ef4444;">
+                                        <div style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem;">Severity
+                                            Level</div>
+                                        <div id="profileSeverity"
+                                            style="font-size: 1.25rem; font-weight: 600; color: #1a1d29;">--</div>
+                                    </div>
+                                    <div
+                                        style="padding: 1.25rem; background: #f9fafb; border-radius: 12px; border-left: 4px solid #3b82f6;">
+                                        <div style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem;">Dyslexia
+                                            Probability</div>
+                                        <div id="profileProbability"
+                                            style="font-size: 1.25rem; font-weight: 600; color: #1a1d29;">--</div>
+                                    </div>
+                                    <div
+                                        style="padding: 1.25rem; background: #f9fafb; border-radius: 12px; border-left: 4px solid #10b981;">
+                                        <div style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.5rem;">Overall
+                                            Score</div>
+                                        <div id="profileAvgScore"
+                                            style="font-size: 1.25rem; font-weight: 600; color: #1a1d29;">--</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Performance History Chart -->
+                            <div
+                                style="background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); margin-bottom: 1.5rem;">
+                                <h3 style="margin-bottom: 1.5rem; color: #1a1d29; font-size: 1.25rem;">
+                                    <i class="fas fa-chart-line" style="color: #10b981;"></i>
+                                    Performance Progress Over Time
+                                </h3>
+                                <canvas id="studentProgressChart" style="max-height: 300px;"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Overview Stats -->
+                        <div class="analytics-stats-grid"
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
+                            <div class="stat-card-analytics"
+                                style="background: white; padding: 1.5rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                                <div style="font-size: 2rem; font-weight: 700; color: #7c3aed;"
+                                    id="analyticsTotalStudents">0</div>
+                                <div style="color: #6b7280; margin-top: 0.5rem;">Total Students</div>
+                            </div>
+                            <div class="stat-card-analytics"
+                                style="background: white; padding: 1.5rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                                <div style="font-size: 2rem; font-weight: 700; color: #ef4444;"
+                                    id="analyticsNeedingSupport">0</div>
+                                <div style="color: #6b7280; margin-top: 0.5rem;">Need Support</div>
+                            </div>
+                        </div>
+
+                        <!-- Charts Row -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0;">
+                            <div class="chart-card"
+                                style="background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                                <h3 style="margin-bottom: 1.5rem; color: #1a1d29; font-size: 1.25rem;">Dyslexia Type
+                                    Distribution</h3>
+                                <canvas id="dyslexiaTypeChart" style="max-height: 300px;"></canvas>
+                            </div>
+                            <div class="chart-card"
+                                style="background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                                <h3 style="margin-bottom: 1.5rem; color: #1a1d29; font-size: 1.25rem;">Severity
+                                    Distribution</h3>
+                                <canvas id="severityChart" style="max-height: 300px;"></canvas>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Hidden Sections -->
+                    <div id="studentsSection" style="display: none;"></div>
+                    <div id="supportSection" style="display: none;"></div>
+                    <div id="resourcesSection" style="display: none;"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals (Needed for JS consistency) -->
+    <div class="modal-overlay" id="studentModal" style="display:none"></div>
+    <div class="modal-overlay" id="testModal" style="display:none"></div>
+
+    <script src="js/student-profile.js"></script>
+    <script src="js/consultant.js"></script>
+</body>
+
+</html>

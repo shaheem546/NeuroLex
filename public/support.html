@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Consultant Dashboard - Manage students and dyslexia assessments">
+    <title>Support - Dyslexia Detection Platform</title>
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- External Stylesheets -->
+    <link rel="stylesheet" href="css/consultant.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <i class="fas fa-brain"></i>
+                <span>NeuroLex</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a class="nav-item" href="consultant-dashboard.html" id="navDashboard">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a class="nav-item" href="students.html" id="navStudents">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>Students</span>
+                </a>
+                <a class="nav-item" href="game/index.html">
+                    <i class="fas fa-clipboard-check"></i>
+                    <span>Assessments</span>
+                </a>
+                <a class="nav-item" href="analytics.html" id="navAnalytics">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a class="nav-item" href="resources.html" id="navResources">
+                    <i class="fas fa-book-open"></i>
+                    <span>Resources</span>
+                </a>
+                <a class="nav-item" href="settings.html" id="navSettings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+                <a class="nav-item active" href="support.html" id="navSupport">
+                    <i class="fas fa-headset"></i>
+                    <span>Support</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a class="nav-item" href="#" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper">
+            <main class="main-content">
+                <!-- Header -->
+                <div class="dashboard-header">
+                    <div class="welcome-text">
+                        <h1>Support Requests</h1>
+                    </div>
+                    <div class="header-actions">
+                        <button class="logout-btn-header" id="headerLogoutBtn" title="Logout">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dashboard Main Section (Hidden) -->
+                <div id="dashboardMainSection" style="display: none;"></div>
+
+                <!-- Content Grid -->
+                <div class="content-grid">
+                    <div class="table-card" id="supportSection">
+                        <div class="card-header">
+                            <h2>Flagged Support Requests</h2>
+                            <button class="btn-add" id="refreshSupportBtn"
+                                style="background: white; color: #6b7280; border: 1px solid #e5e7eb;">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+
+                        <div id="supportEmptyState" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <p>No new support requests</p>
+                        </div>
+
+                        <div id="supportTableContainer" style="display: none; overflow-x: auto;">
+                            <table class="student-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 25%;">Student</th>
+                                        <th style="width: 40%;">Message</th>
+                                        <th style="width: 15%;">Time</th>
+                                        <th style="width: 10%;">Status</th>
+                                        <th style="width: 10%; text-align: center;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="supportTableBody">
+                                    <!-- Populated via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Hidden Sections -->
+                    <div id="studentsSection" style="display: none;"></div>
+                    <div id="analyticsSection" style="display: none;"></div>
+                    <div id="resourcesSection" style="display: none;"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="studentModal" style="display:none"></div>
+    <div class="modal-overlay" id="testModal" style="display:none"></div>
+
+    <script src="js/consultant.js"></script>
+</body>
+
+</html>

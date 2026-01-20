@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Consultant Dashboard - Manage students and dyslexia assessments">
+    <title>Student Management - Dyslexia Detection Platform</title>
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- External Stylesheets -->
+    <link rel="stylesheet" href="css/consultant.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <i class="fas fa-brain"></i>
+                <span>NeuroLex</span>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a class="nav-item" href="consultant-dashboard.html" id="navDashboard">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a class="nav-item active" href="students.html" id="navStudents">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>Students</span>
+                </a>
+                <a class="nav-item" href="game/index.html">
+                    <i class="fas fa-clipboard-check"></i>
+                    <span>Assessments</span>
+                </a>
+                <a class="nav-item" href="analytics.html" id="navAnalytics">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a class="nav-item" href="resources.html" id="navResources">
+                    <i class="fas fa-book-open"></i>
+                    <span>Resources</span>
+                </a>
+                <a class="nav-item" href="settings.html" id="navSettings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+                <a class="nav-item" href="support.html" id="navSupport">
+                    <i class="fas fa-headset"></i>
+                    <span>Support</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a class="nav-item" href="#" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper">
+            <main class="main-content">
+                <!-- Header -->
+                <div class="dashboard-header">
+                    <div class="welcome-text">
+                        <h1>Student Management</h1>
+                    </div>
+                    <div class="header-actions">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Search students...">
+                        </div>
+                        <button class="notification-btn">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge"></span>
+                        </button>
+                        <button class="logout-btn-header" id="headerLogoutBtn" title="Logout">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Dashboard Main Section (Hidden on Students Page) -->
+                <div id="dashboardMainSection" style="display: none;">
+                </div>
+
+                <!-- Content Grid -->
+                <div class="content-grid">
+                    <!-- Student Table -->
+                    <div class="table-card" id="studentsSection">
+                        <div class="card-header">
+                            <h2>All Students</h2>
+                            <div class="card-actions">
+                                <button class="btn-add" id="addStudentBtn">
+                                    <i class="fas fa-plus"></i>
+                                    Add Student
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="studentTableContainer">
+                            <table class="student-table">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>ID</th>
+                                        <th>Type</th>
+                                        <th>Severity</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentTableBody">
+                                    <!-- Students loaded dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="empty-state" id="emptyState" style="display: none;">
+                            <i class="fas fa-user-graduate"></i>
+                            <p>No students yet. Add your first student!</p>
+                        </div>
+                    </div>
+
+                    <!-- Hidden Sections on Students Page -->
+                    <div id="supportSection" style="display: none;"></div>
+                    <div id="analyticsSection" style="display: none;"></div>
+                    <div id="resourcesSection" style="display: none;"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Add/Edit Student Modal -->
+    <div class="modal-overlay" id="studentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Add New Student</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <form id="studentForm">
+                <input type="hidden" id="studentIdHidden">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name *</label>
+                        <input type="text" id="firstName" placeholder="Enter first name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name *</label>
+                        <input type="text" id="lastName" placeholder="Enter last name" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address *</label>
+                    <input type="email" id="email" placeholder="student@email.com" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="studentIdInput">Student ID *</label>
+                        <input type="text" id="studentIdInput" placeholder="STU001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="grade">Grade/Class</label>
+                        <input type="text" id="grade" placeholder="e.g., Grade 5">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="dyslexiaType">Dyslexia Type</label>
+                        <select id="dyslexiaType">
+                            <option value="none">None Detected</option>
+                            <option value="dyslexia">Dyslexia</option>
+                            <option value="dyscalculia">Dyscalculia</option>
+                            <option value="dysgraphia">Dysgraphia</option>
+                            <option value="dysphasia">Dysphasia</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="severity">Severity</label>
+                        <select id="severity">
+                            <option value="mild">Mild</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="severe">Severe</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" id="cancelModal">Cancel</button>
+                    <button type="submit" class="btn-submit" id="submitBtn">Add Student</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Assign Test Modal -->
+    <div class="modal-overlay" id="testModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Assign Dyslexia Test</h3>
+                <button class="modal-close" id="closeTestModal">&times;</button>
+            </div>
+            <form id="testForm">
+                <input type="hidden" id="testStudentId">
+                <div class="form-group">
+                    <label>Student: <strong id="testStudentName"></strong></label>
+                </div>
+                <div class="form-group">
+                    <label for="testType">Test Type *</label>
+                    <select id="testType" required>
+                        <option value="visual_association">Visual Association (Letter Matching)</option>
+                        <option value="auditory_processing">Auditory Processing (Phonemic)</option>
+                        <option value="visual_memory">Visual Memory (Pattern Recall)</option>
+                        <option value="rapid_naming">Rapid Naming (Speed & Fluency)</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" id="cancelTestModal">Cancel</button>
+                    <button type="submit" class="btn-submit">Start Adventure Game</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/student-profile.js"></script>
+    <script src="js/consultant.js"></script>
+</body>
+
+</html>

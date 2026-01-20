@@ -106,13 +106,9 @@ async function handleLogin(e) {
     persistUserSession(data);
     showSuccessMessage('Login successful!');
 
-    // Redirect based on role
+    // Redirect to consultant dashboard (main dashboard for all users)
     setTimeout(() => {
-      if (data.user.role === 'teacher' || data.user.role === 'admin') {
-        window.location.href = 'consultant-dashboard.html';
-      } else {
-        window.location.href = 'dashboard.html';
-      }
+      window.location.href = 'consultant-dashboard.html';
     }, 800);
   } catch (err) {
     alert(err.message || 'Login failed');
@@ -204,12 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Check if already logged in
   const token = localStorage.getItem('token');
-  const userRole = localStorage.getItem('userRole');
   if (token) {
-    if (userRole === 'teacher' || userRole === 'admin') {
-      window.location.href = 'consultant-dashboard.html';
-    } else {
-      window.location.href = 'dashboard.html';
-    }
+    window.location.href = 'consultant-dashboard.html';
   }
 });

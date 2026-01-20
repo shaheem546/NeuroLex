@@ -35,10 +35,8 @@ function getUserInfo() {
     const nameEl = document.getElementById('userName');
     if (nameEl) nameEl.textContent = userName;
 
-    // Check if user is a teacher
-    if (userRole !== 'teacher' && userRole !== 'admin') {
-        window.location.href = 'dashboard.html';
-    }
+    // All users can access consultant dashboard now
+    // Role-specific features are handled within the dashboard
 }
 
 // Load analytics
@@ -311,34 +309,92 @@ function handleSearch(e) {
 
 // Initialize
 window.onload = function () {
+    // Auth check - redirect to login if not authenticated
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = 'index.html';
+        return;
+    }
+
     getUserInfo();
     loadAnalytics();
     loadStudents();
 
-    // Event listeners
+    // Common Elements
     const logoutBtn = document.getElementById('logoutBtn');
+    const headerLogoutBtn = document.getElementById('headerLogoutBtn');
     const addStudentBtn = document.getElementById('addStudentBtn');
     const quickAddStudent = document.getElementById('quickAddStudent');
     const closeModal = document.getElementById('closeModal');
     const cancelModal = document.getElementById('cancelModal');
     const studentForm = document.getElementById('studentForm');
     const searchInput = document.getElementById('searchInput');
-    const closeTestModal = document.getElementById('closeTestModal');
-    const cancelTestModal = document.getElementById('cancelTestModal');
+    const closeTestModalBtn = document.getElementById('closeTestModal');
+    const cancelTestModalBtn = document.getElementById('cancelTestModal');
     const testForm = document.getElementById('testForm');
-    const navStudents = document.getElementById('navStudents');
 
-    if (logoutBtn) logoutBtn.addEventListener('click', logout);
-    const headerLogoutBtn = document.getElementById('headerLogoutBtn');
-    if (headerLogoutBtn) headerLogoutBtn.addEventListener('click', logout);
+    const navDashboard = document.getElementById('navDashboard');
+    const navStudents = document.getElementById('navStudents');
+    const navAnalytics = document.getElementById('navAnalytics');
+    const navResources = document.getElementById('navResources');
+    const navSupport = document.getElementById('navSupport');
+    const navSettings = document.getElementById('navSettings');
+
+    const dashboardMainSection = document.getElementById('dashboardMainSection');
+    const studentsSection = document.getElementById('studentsSection');
+    const analyticsSection = document.getElementById('analyticsSection');
+    const resourcesSection = document.getElementById('resourcesSection');
+    const supportSection = document.getElementById('supportSection');
+
+    // Page-specific initialization based on URL
+    const currentPath = window.location.pathname;
+    if (currentPath.includes('students.html')) {
+        if (studentsSection) studentsSection.style.display = 'block';
+        if (dashboardMainSection) dashboardMainSection.style.display = 'none';
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        if (navStudents) navStudents.classList.add('active');
+    } else if (currentPath.includes('analytics.html')) {
+        if (analyticsSection) analyticsSection.style.display = 'block';
+        if (dashboardMainSection) dashboardMainSection.style.display = 'none';
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        if (navAnalytics) navAnalytics.classList.add('active');
+        loadAnalyticsData();
+    } else if (currentPath.includes('support.html')) {
+        if (supportSection) supportSection.style.display = 'block';
+        if (dashboardMainSection) dashboardMainSection.style.display = 'none';
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        if (navSupport) navSupport.classList.add('active');
+        loadSupportRequests();
+    } else if (currentPath.includes('resources.html')) {
+        if (resourcesSection) resourcesSection.style.display = 'block';
+        if (dashboardMainSection) dashboardMainSection.style.display = 'none';
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        if (navResources) navResources.classList.add('active');
+    } else if (currentPath.includes('settings.html')) {
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        if (navSettings) navSettings.classList.add('active');
+        if (dashboardMainSection) dashboardMainSection.style.display = 'none';
+    } else if (currentPath.includes('consultant-dashboard.html') || currentPath.endsWith('/') || currentPath.endsWith('index.html')) {
+        // Fallback for dashboard
+        if (dashboardMainSection) dashboardMainSection.style.display = 'block';
+    }
+
+    if (logoutBtn) logoutBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        logout();
+    });
+    if (headerLogoutBtn) headerLogoutBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        logout();
+    });
     if (addStudentBtn) addStudentBtn.addEventListener('click', openAddStudentModal);
     if (quickAddStudent) quickAddStudent.addEventListener('click', openAddStudentModal);
     if (closeModal) closeModal.addEventListener('click', closeStudentModal);
     if (cancelModal) cancelModal.addEventListener('click', closeStudentModal);
     if (studentForm) studentForm.addEventListener('submit', submitStudentForm);
     if (searchInput) searchInput.addEventListener('input', handleSearch);
-    if (closeTestModal) closeTestModal.addEventListener('click', closeTestModal);
-    if (cancelTestModal) cancelTestModal.addEventListener('click', closeTestModal);
+    if (closeTestModalBtn) closeTestModalBtn.addEventListener('click', closeTestModal);
+    if (cancelTestModalBtn) cancelTestModalBtn.addEventListener('click', closeTestModal);
     if (testForm) testForm.addEventListener('submit', submitTestForm);
     // Unified navigation handler for Students
     if (navStudents) {
@@ -346,7 +402,6 @@ window.onload = function () {
             // Hide other sections
             if (analyticsSection) analyticsSection.style.display = 'none';
             if (supportSection) supportSection.style.display = 'none';
-            const resourcesSection = document.getElementById('resourcesSection');
             if (resourcesSection) resourcesSection.style.display = 'none';
 
             // Show students section
@@ -360,7 +415,7 @@ window.onload = function () {
             if (supportPollInterval) clearInterval(supportPollInterval);
         };
         navStudents.addEventListener('click', (e) => {
-            e.preventDefault();
+            // No preventDefault to allow navigation to students.html
             originalHandler();
         });
     }
@@ -388,17 +443,14 @@ window.onload = function () {
     }
 
     /* Support Request Logic */
-    const navSupport = document.getElementById('navSupport');
-    const supportSection = document.getElementById('supportSection');
-    const studentsSection = document.getElementById('studentsSection');
     const refreshSupportBtn = document.getElementById('refreshSupportBtn');
 
     if (navSupport) {
         navSupport.addEventListener('click', (e) => {
-            e.preventDefault();
+            // No preventDefault to allow navigation to support.html
             // Toggle visibility
-            studentsSection.style.display = 'none';
-            supportSection.style.display = 'block';
+            if (studentsSection) studentsSection.style.display = 'none';
+            if (supportSection) supportSection.style.display = 'block';
 
             // Update active nav
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -457,17 +509,15 @@ window.onload = function () {
     }
 
     /* Resources Navigation */
-    const navResources = document.getElementById('navResources');
     if (navResources) {
         navResources.addEventListener('click', (e) => {
-            e.preventDefault();
+            // No preventDefault to allow navigation to resources.html
             // Hide other sections
             if (studentsSection) studentsSection.style.display = 'none';
             if (supportSection) supportSection.style.display = 'none';
             if (analyticsSection) analyticsSection.style.display = 'none';
 
             // Show resources section
-            const resourcesSection = document.getElementById('resourcesSection');
             if (resourcesSection) resourcesSection.style.display = 'block';
 
             // Update active nav
@@ -480,13 +530,11 @@ window.onload = function () {
     }
 
     /* Analytics Logic */
-    const navAnalytics = document.getElementById('navAnalytics');
-    const analyticsSection = document.getElementById('analyticsSection');
     let analyticsCharts = {};
 
     if (navAnalytics) {
         navAnalytics.addEventListener('click', (e) => {
-            e.preventDefault();
+            // No preventDefault to allow navigation to analytics.html
             // Hide other sections
             if (studentsSection) studentsSection.style.display = 'none';
             if (supportSection) supportSection.style.display = 'none';
@@ -743,19 +791,15 @@ window.onload = function () {
     }
 
     /* Dashboard Logic */
-    const navDashboard = document.getElementById('navDashboard');
-    const dashboardMainSection = document.getElementById('dashboardMainSection');
-    const studentsSection = document.getElementById('studentsSection');
     let dashboardCharts = {};
 
     if (navDashboard) {
         navDashboard.addEventListener('click', (e) => {
-            e.preventDefault();
+            // No preventDefault to allow navigation to consultant-dashboard.html
             // Hide other sections
             if (studentsSection) studentsSection.style.display = 'none';
             if (supportSection) supportSection.style.display = 'none';
             if (analyticsSection) analyticsSection.style.display = 'none';
-            const resourcesSection = document.getElementById('resourcesSection');
             if (resourcesSection) resourcesSection.style.display = 'none';
 
             // Show dashboard section
@@ -1115,7 +1159,6 @@ window.onload = function () {
     if (quickActionViewAnalytics) {
         quickActionViewAnalytics.addEventListener('click', function () {
             // Click the nav analytics button
-            const navAnalytics = document.getElementById('navAnalytics');
             if (navAnalytics) {
                 navAnalytics.click();
             }
@@ -1138,7 +1181,6 @@ window.onload = function () {
     if (quickActionSupportRequests) {
         quickActionSupportRequests.addEventListener('click', function () {
             // Click the nav support button to show support section
-            const navSupport = document.getElementById('navSupport');
             if (navSupport) {
                 navSupport.click();
             }
