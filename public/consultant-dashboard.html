@@ -340,8 +340,8 @@
                                     <tr>
                                         <th>Student</th>
                                         <th>ID</th>
-                                        <th>Type</th>
-                                        <th>Severity</th>
+                                        <th>Grade</th>
+                                        <th>Parent/Guardian</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -876,29 +876,32 @@
                         <input type="text" id="studentIdInput" placeholder="STU001" required>
                     </div>
                     <div class="form-group">
-                        <label for="grade">Grade/Class</label>
-                        <input type="text" id="grade" placeholder="e.g., Grade 5">
+                        <label for="grade">Grade/Class *</label>
+                        <select id="grade" required>
+                            <option value="">Select Grade</option>
+                            <option value="1-2">Grade 1, 2</option>
+                            <option value="3-4">Grade 3, 4</option>
+                            <option value="5-6">Grade 5, 6</option>
+                        </select>
                     </div>
+                </div>
+                <div class="form-divider" style="margin: 1.5rem 0 1rem; border-top: 1px solid #eee; padding-top: 1rem;">
+                    <h4 style="font-size: 0.9rem; color: #6b7280; font-weight: 600;">Parent / Guardian Information</h4>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="dyslexiaType">Dyslexia Type</label>
-                        <select id="dyslexiaType">
-                            <option value="none">None Detected</option>
-                            <option value="dyslexia">Dyslexia</option>
-                            <option value="dyscalculia">Dyscalculia</option>
-                            <option value="dysgraphia">Dysgraphia</option>
-                            <option value="dysphasia">Dysphasia</option>
-                        </select>
+                        <label for="parentName">Parent Name *</label>
+                        <input type="text" id="parentName" placeholder="Full name" required>
                     </div>
                     <div class="form-group">
-                        <label for="severity">Severity</label>
-                        <select id="severity">
-                            <option value="mild">Mild</option>
-                            <option value="moderate">Moderate</option>
-                            <option value="severe">Severe</option>
-                        </select>
+                        <label for="parentPhone">Parent Phone *</label>
+                        <input type="tel" id="parentPhone" placeholder="+1..." required>
                     </div>
+                </div>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <label for="parentAddress">Parent Address *</label>
+                    <textarea id="parentAddress" placeholder="Full postal address" required
+                        style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 10px; font-family: inherit; font-size: 0.9rem; resize: vertical; min-height: 80px;"></textarea>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn-cancel" id="cancelModal">Cancel</button>

@@ -280,10 +280,13 @@ router.post('/students', [
   body('studentId').trim().notEmpty().withMessage('Student ID is required'),
   body('password').optional().isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
   body('grade').optional().trim(),
-  body('dyslexiaType').optional().isIn(['dyslexia', 'dyscalculia', 'dysgraphia', 'dysphasia', 'none']),
-  body('severity').optional().isIn(['mild', 'moderate', 'severe'])
+  body('severity').optional().isIn(['mild', 'moderate', 'severe']),
+  body('parentName').optional().trim(),
+  body('parentPhone').optional().trim(),
+  body('parentAddress').optional().trim()
 ], async (req, res) => {
   try {
+    console.log('--- CREATE STUDENT DEBUG ---', req.body);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -293,7 +296,10 @@ router.post('/students', [
       });
     }
 
-    const { firstName, lastName, email, studentId, password, grade, dyslexiaType, severity } = req.body;
+    const {
+      firstName, lastName, email, studentId, password, grade,
+      dyslexiaType, severity, parentName, parentPhone, parentAddress
+    } = req.body;
 
     // Check if email already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
@@ -322,6 +328,9 @@ router.post('/students', [
       password: password || 'Student@123', // Default password
       role: 'student',
       grade: grade || '',
+      parentName: parentName || '',
+      parentPhone: parentPhone || '',
+      parentAddress: parentAddress || '',
       createdBy: req.user.userId
     };
 
@@ -368,9 +377,13 @@ router.put('/students/:id', [
   body('grade').optional().trim(),
   body('dyslexiaType').optional().isIn(['dyslexia', 'dyscalculia', 'dysgraphia', 'dysphasia', 'none']),
   body('severity').optional().isIn(['mild', 'moderate', 'severe']),
-  body('accommodations').optional().isArray()
+  body('accommodations').optional().isArray(),
+  body('parentName').optional().trim(),
+  body('parentPhone').optional().trim(),
+  body('parentAddress').optional().trim()
 ], async (req, res) => {
   try {
+    console.log('--- UPDATE STUDENT DEBUG ---', req.params.id, req.body);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -392,12 +405,18 @@ router.put('/students/:id', [
       });
     }
 
-    const { firstName, lastName, grade, dyslexiaType, severity, accommodations } = req.body;
+    const {
+      firstName, lastName, grade, dyslexiaType, severity,
+      accommodations, parentName, parentPhone, parentAddress
+    } = req.body;
 
     // Update basic info
     if (firstName) student.firstName = firstName;
     if (lastName) student.lastName = lastName;
     if (grade !== undefined) student.grade = grade;
+    if (parentName !== undefined) student.parentName = parentName;
+    if (parentPhone !== undefined) student.parentPhone = parentPhone;
+    if (parentAddress !== undefined) student.parentAddress = parentAddress;
 
     // Update learning profile
     if (dyslexiaType !== undefined) student.learningProfile.dyslexiaType = dyslexiaType;
@@ -608,16 +627,16 @@ router.get('/analytics', [auth, authorize('teacher', 'admin')], async (req, res)
 
     // Calculate dyslexia chances (based on progress patterns)
     const dyslexiaChances = {
-      high: studentsWithProgress.filter(s => 
-        s.learningProfile.dyslexiaType !== 'none' && 
+      high: studentsWithProgress.filter(s =>
+        s.learningProfile.dyslexiaType !== 'none' &&
         (s.progress.averageAccuracy < 60 || s.progress.averageScore < 50)
       ).length,
-      medium: studentsWithProgress.filter(s => 
-        s.learningProfile.dyslexiaType !== 'none' && 
+      medium: studentsWithProgress.filter(s =>
+        s.learningProfile.dyslexiaType !== 'none' &&
         s.progress.averageAccuracy >= 60 && s.progress.averageAccuracy < 75
       ).length,
-      low: studentsWithProgress.filter(s => 
-        s.learningProfile.dyslexiaType === 'none' || 
+      low: studentsWithProgress.filter(s =>
+        s.learningProfile.dyslexiaType === 'none' ||
         (s.learningProfile.dyslexiaType !== 'none' && s.progress.averageAccuracy >= 75)
       ).length
     };
@@ -632,8 +651,8 @@ router.get('/analytics', [auth, authorize('teacher', 'admin')], async (req, res)
         studentsNeedingSupport: totalStudents - (dyslexiaBreakdown.none || 0),
         studentsWithProgress,
         dyslexiaChances,
-        overallAverageScore: progressData.length > 0 
-          ? progressData.reduce((sum, p) => sum + (p.averageScore || 0), 0) / progressData.length 
+        overallAverageScore: progressData.length > 0
+          ? progressData.reduce((sum, p) => sum + (p.averageScore || 0), 0) / progressData.length
           : 0
       }
     });

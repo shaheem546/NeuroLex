@@ -43,6 +43,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  parentName: {
+    type: String,
+    trim: true
+  },
+  parentPhone: {
+    type: String,
+    trim: true
+  },
+  parentAddress: {
+    type: String,
+    trim: true
+  },
   // Teacher specific fields
   employeeId: {
     type: String,

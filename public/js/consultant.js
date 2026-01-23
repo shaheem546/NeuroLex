@@ -107,8 +107,13 @@ async function loadStudents(search = '') {
                             </div>
                         </td>
                         <td>${student.studentId || '-'}</td>
-                        <td><span class="badge badge-${student.learningProfile?.dyslexiaType || 'none'}">${formatDyslexiaType(student.learningProfile?.dyslexiaType)}</span></td>
-                        <td><span class="badge badge-${student.learningProfile?.severity || 'mild'}">${capitalize(student.learningProfile?.severity || 'Mild')}</span></td>
+                        <td>Grade ${student.grade || '-'}</td>
+                        <td>
+                            <div style="font-size: 0.85rem;">
+                                <strong>${student.parentName || '-'}</strong><br>
+                                <span style="color: #6b7280;">${student.parentPhone || ''}</span>
+                            </div>
+                        </td>
                         <td>
                             <button class="action-btn" data-action="edit" data-id="${student._id}" title="Edit"><i class="fas fa-edit"></i></button>
                             <button class="action-btn" data-action="test" data-id="${student._id}" data-name="${student.firstName} ${student.lastName}" title="Start Game"><i class="fas fa-clipboard-check"></i></button>
@@ -178,8 +183,9 @@ async function editStudent(id) {
             'email': student.email,
             'studentIdInput': student.studentId,
             'grade': student.grade,
-            'dyslexiaType': student.learningProfile?.dyslexiaType,
-            'severity': student.learningProfile?.severity
+            'parentName': student.parentName,
+            'parentPhone': student.parentPhone,
+            'parentAddress': student.parentAddress
         };
 
         Object.keys(fields).forEach(key => {
@@ -207,8 +213,9 @@ async function submitStudentForm(e) {
         email: document.getElementById('email').value,
         studentId: document.getElementById('studentIdInput').value,
         grade: document.getElementById('grade').value,
-        dyslexiaType: document.getElementById('dyslexiaType').value,
-        severity: document.getElementById('severity').value
+        parentName: document.getElementById('parentName').value,
+        parentPhone: document.getElementById('parentPhone').value,
+        parentAddress: document.getElementById('parentAddress').value
     };
 
     try {
