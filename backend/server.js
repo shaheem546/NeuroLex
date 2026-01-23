@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config({ path: path.join(__dirname, 'config.env') });
 
 const authRoutes = require('./routes/auth');
@@ -52,8 +53,20 @@ app.get('/api/health', (_req, res) => {
 
 // Serve frontend (static files) from public directory
 app.use(express.static(path.join(__dirname, '..', 'public')));
-app.get('*', (_req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+app.get('*', (req, res) => {
+  // If request is for an existing file in /public, serve it instead of always returning index.html
+  const safePath = decodeURIComponent(req.path || '/');
+  const candidate = path.join(__dirname, '..', 'public', safePath);
+
+  try {
+    if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) {
+      return res.sendFile(candidate);
+    }
+  } catch (_e) {
+    // ignore and fall back to index.html
+  }
+
+  return res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
 // Global error handler

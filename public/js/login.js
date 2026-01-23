@@ -105,11 +105,12 @@ async function handleLogin(e) {
     const data = await apiRequest('/auth/login', 'POST', { email, password });
     persistUserSession(data);
     showSuccessMessage('Login successful!');
+    submitBtn.classList.remove('loading');
 
-    // Redirect to consultant dashboard (main dashboard for all users)
+    // Redirect to consultant dashboard immediately
     setTimeout(() => {
-      window.location.href = 'consultant-dashboard.html';
-    }, 800);
+      window.location.href = './consultant-dashboard.html';
+    }, 1000);
   } catch (err) {
     alert(err.message || 'Login failed');
     submitBtn.classList.remove('loading');
@@ -162,8 +163,8 @@ async function handleRegister(e) {
     persistUserSession(data);
 
     setTimeout(() => {
-      window.location.href = 'consultant-dashboard.html';
-    }, 800);
+      window.location.href = './consultant-dashboard.html';
+    }, 1000);
   } catch (err) {
     alert(err.message || 'Registration failed');
     submitBtn.classList.remove('loading');
@@ -198,9 +199,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Check if already logged in
+  // Check if already logged in - Redirect to dashboard if logged in
   const token = localStorage.getItem('token');
   if (token) {
-    window.location.href = 'consultant-dashboard.html';
+    // Only redirect if not already on dashboard or login page
+    const currentPath = window.location.pathname;
+    if (!currentPath.includes('consultant-dashboard.html') && !currentPath.includes('index.html')) {
+      window.location.href = 'consultant-dashboard.html';
+    }
   }
 });
