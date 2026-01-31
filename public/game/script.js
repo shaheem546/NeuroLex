@@ -1,7 +1,7 @@
 // Game State
 let gameState = {
     playerName: '',
-    ageGroup: 'young', // young, middle, older
+    ageGroup: 'grade12', // grade12, grade34, grade56
     currentChallenge: 0,
     score: 0,
     talentScores: {
@@ -64,35 +64,87 @@ function selectPreferredVoice(voices) {
 }
 
 // Age-appropriate challenge data replaced with provided 20-question set
+// Grade-appropriate challenge data with questionnaires for all grades
 const challengesByAge = {
-    young: [
-        // Section 1 – Reading & Comprehension (Q1–Q10)
-        { id: 1, title: "📖 The Happy Butterfly", description: "Answer the question.", type: "dysphasia", content: "Who was flying from flower to flower in the story 'The Happy Butterfly'?", options: ["Bee", "Butterfly", "Bird", "Ladybug"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
-        { id: 2, title: "📖 The Happy Butterfly", description: "Answer the question.", type: "dysphasia", content: "Where was the butterfly?", options: ["In the forest", "In the garden", "In the house", "By the river"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
-        { id: 3, title: "📖 The Happy Butterfly", description: "Answer the question.", type: "dysphasia", content: "How did the butterfly feel?", options: ["Sad", "Scared", "Happy", "Angry"], correctAnswer: 2, maxScore: 15, typeLabel: "Dysphasia Support" },
-        { id: 4, title: "🏞️ Fun at the Park", description: "Answer the question.", type: "dysphasia", content: "Who went to the park in 'Fun at the Park'?", options: ["Sarah and Tom", "Ben and Mia", "Lily and Jack", "Tom and Jake"], correctAnswer: 0, maxScore: 15, typeLabel: "Dysphasia Support" },
-        { id: 5, title: "🏞️ Fun at the Park", description: "Answer the question.", type: "dysphasia", content: "What did they play on at the park?", options: ["Swings and slides", "Seesaw and sandbox", "Bikes and balls", "Kites and ropes"], correctAnswer: 0, maxScore: 15, typeLabel: "Dysphasia Support" },
-        { id: 6, title: "🐟 My Pet Fish", description: "Answer the question.", type: "dysphasia", content: "What is the pet’s name in 'My Pet Fish'?", options: ["Goldy", "Bluey", "Bubbles", "Finny"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
-        { id: 7, title: "🐟 My Pet Fish", description: "Answer the question.", type: "dysphasia", content: "What color is Bluey?", options: ["Blue", "Red", "Green", "Yellow"], correctAnswer: 0, maxScore: 15, typeLabel: "Dysphasia Support" },
-        { id: 8, title: "🐱 The Lost Kitten", description: "Answer the question.", type: "dysphasia", content: "Where did Sarah find the kitten in 'The Lost Kitten'?", options: ["In her backyard", "In the park", "On the road", "At school"], correctAnswer: 0, maxScore: 15, typeLabel: "Dysphasia Support" },
-        { id: 9, title: "🐱 The Lost Kitten", description: "Answer the question.", type: "dysphasia", content: "What name did Sarah give the kitten?", options: ["Whiskers", "Snowy", "Fluffy", "Kitty"], correctAnswer: 2, maxScore: 15, typeLabel: "Dysphasia Support" },
-        { id: 10, title: "🌳 The Oak Tree", description: "Answer the question.", type: "dysphasia", content: "What did Tommy and Lily find behind the oak tree?", options: ["A treasure chest", "A magical garden", "A secret door", "A pond"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
+    grade12: [
+        // Grade 1-2: Super Simple Stories & Fun Activities (Q1–Q10)
+        { id: 1, title: "🐶 My Dog Spot", description: "Answer the question.", type: "dysphasia", content: "What is the dog's name?", options: ["Max", "Spot", "Buddy", "Rex"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
+        /*{ id: 2, title: "🍎 Red Apple", description: "Answer the question.", type: "dysphasia", content: "What color is the apple?", options: ["Green", "Yellow", "Red", "Blue"], correctAnswer: 2, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 3, title: "🌞 Sunny Day", description: "Answer the question.", type: "dysphasia", content: "What is hot and bright?", options: ["The moon", "The sun", "The snow", "The rain"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 4, title: "🎂 Birthday Party", description: "Answer the question.", type: "dysphasia", content: "What do we eat on birthdays?", options: ["Candy", "Cake", "Pizza", "Soup"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 5, title: "🚗 Fast Car", description: "Answer the question.", type: "dysphasia", content: "What has wheels and goes fast?", options: ["A ball", "A bicycle", "A car", "A shoe"], correctAnswer: 2, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 6, title: "🐠 Fish in Water", description: "Answer the question.", type: "dysphasia", content: "Where do fish live?", options: ["In trees", "In water", "In the sky", "In holes"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 7, title: "⭐ Twinkle Star", description: "Answer the question.", type: "dysphasia", content: "When do you see stars?", options: ["Morning", "Afternoon", "Night", "Morning"], correctAnswer: 2, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 8, title: "🍌 Yellow Banana", description: "Answer the question.", type: "dysphasia", content: "What is yellow and yummy?", options: ["Lemon", "Banana", "Carrot", "Cheese"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 9, title: "👟 My Shoes", description: "Answer the question.", type: "dysphasia", content: "What do you wear on your feet?", options: ["Hat", "Shoes", "Socks", "Shirt"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 10, title: "🎨 Paint Colors", description: "Answer the question.", type: "dysphasia", content: "What do you use to draw?", options: ["Pencil", "Crayon", "Both pencil and crayon", "Book"], correctAnswer: 2, maxScore: 15, typeLabel: "Dysphasia Support" },
 
-        // Section 2 – Mathematics & Logic (Q11–Q20)
-        { id: 11, title: "🧮 Mathematics", description: "Solve the problem.", type: "dyscalculia", content: "7 + 2 = ?", options: ["8", "9", "10", "11"], correctAnswer: 1, maxScore: 15, typeLabel: "Dyscalculia Support" },
-        { id: 12, title: "🧮 Mathematics", description: "Solve the problem.", type: "dyscalculia", content: "4 + 6 = ?", options: ["9", "10", "11", "8"], correctAnswer: 1, maxScore: 15, typeLabel: "Dyscalculia Support" },
-        { id: 13, title: "🧮 Mathematics", description: "Solve the problem.", type: "dyscalculia", content: "9 + 1 = ?", options: ["9", "10", "11", "12"], correctAnswer: 1, maxScore: 15, typeLabel: "Dyscalculia Support" },
-        { id: 14, title: "➖ Subtraction", description: "Solve the problem.", type: "dyscalculia", content: "10 – 4 = ?", options: ["5", "6", "7", "8"], correctAnswer: 1, maxScore: 15, typeLabel: "Dyscalculia Support" },
-        { id: 15, title: "➖ Subtraction", description: "Solve the problem.", type: "dyscalculia", content: "8 – 5 = ?", options: ["2", "3", "4", "5"], correctAnswer: 1, maxScore: 15, typeLabel: "Dyscalculia Support" },
-        { id: 16, title: "✖️ Multiplication", description: "Solve the problem.", type: "dyscalculia", content: "2 × 3 = ?", options: ["5", "6", "7", "8"], correctAnswer: 1, maxScore: 15, typeLabel: "Dyscalculia Support" },
-        { id: 17, title: "✖️ Multiplication", description: "Solve the problem.", type: "dyscalculia", content: "4 × 2 = ?", options: ["6", "7", "8", "9"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
-        { id: 18, title: "🧮 Word Problem", description: "Solve the problem.", type: "dyscalculia", content: "John has 5 apples and buys 3 more. How many now?", options: ["6 apples", "7 apples", "8 apples", "9 apples"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
-        { id: 19, title: "🧮 Word Problem", description: "Solve the problem.", type: "dyscalculia", content: "There are 8 birds on a tree; 4 fly away. How many left?", options: ["3 birds", "4 birds", "5 birds", "6 birds"], correctAnswer: 1, maxScore: 15, typeLabel: "Dyscalculia Support" },
-        { id: 20, title: "✖️ Word Problem", description: "Solve the problem.", type: "dyscalculia", content: "Sally has 2 bags with 5 candies each. Total candies = ?", options: ["8 candies", "9 candies", "10 candies", "12 candies"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" }
+        // Grade 1-2: Easy Math (Q11–Q20) - Just counting and basic addition
+        { id: 11, title: "🍎 Apples", description: "Solve the problem.", type: "dyscalculia", content: "1 + 1 = ?", options: ["1", "2", "3", "4"], correctAnswer: 1, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 12, title: "🎈 Balloons", description: "Solve the problem.", type: "dyscalculia", content: "2 + 1 = ?", options: ["1", "2", "3", "4"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 13, title: "🌟 Stars", description: "Solve the problem.", type: "dyscalculia", content: "3 + 1 = ?", options: ["2", "3", "4", "5"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 14, title: "🧸 Toys", description: "Solve the problem.", type: "dyscalculia", content: "5 - 1 = ?", options: ["2", "3", "4", "5"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 15, title: "🎨 Crayons", description: "Solve the problem.", type: "dyscalculia", content: "4 - 2 = ?", options: ["1", "2", "3", "4"], correctAnswer: 1, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 16, title: "🐦 Birds", description: "Solve the problem.", type: "dyscalculia", content: "2 + 2 = ?", options: ["2", "3", "4", "5"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 17, title: "🍪 Cookies", description: "Solve the problem.", type: "dyscalculia", content: "3 + 2 = ?", options: ["3", "4", "5", "6"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 18, title: "🎁 Presents", description: "Solve the problem.", type: "dyscalculia", content: "Sam has 2 toys. Mom gives him 1 more. How many toys?", options: ["1", "2", "3", "4"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 19, title: "🍕 Pizza Slices", description: "Solve the problem.", type: "dyscalculia", content: "There are 4 apples. 1 is eaten. How many left?", options: ["2", "3", "4", "5"], correctAnswer: 1, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        */{ id: 20, title: "🎪 Fun Count", description: "Solve the problem.", type: "dyscalculia", content: "5 + 1 = ?", options: ["4", "5", "6", "7"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" }
     ],
-    middle: [],
-    older: []
+    grade34: [
+        // Grade 3-4: Section 1 – Fun Stories with Simple Reading (Q1–Q10)
+        { id: 1, title: "🧙 The Wizard's Spell", description: "Answer the question.", type: "dysphasia", content: "What did the wizard use to make magic?", options: ["A wand", "A book", "A hat", "A ring"], correctAnswer: 0, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 2, title: "🏆 The Soccer Game", description: "Answer the question.", type: "dysphasia", content: "Which team won the soccer game?", options: ["Red team", "Blue team", "Green team", "Yellow team"], correctAnswer: 0, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 3, title: "🦸 Superhero Time", description: "Answer the question.", type: "dysphasia", content: "What is the superhero's special power?", options: ["Flying", "Super strength", "Invisibility", "Heat vision"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 4, title: "🎸 The Band", description: "Answer the question.", type: "dysphasia", content: "What instrument does the musician play?", options: ["Piano", "Guitar", "Drums", "Flute"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 5, title: "🚀 Space Adventure", description: "Answer the question.", type: "dysphasia", content: "Where did the rocket go?", options: ["To the moon", "To the sun", "To Mars", "To space"], correctAnswer: 3, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 6, title: "🏰 Castle Mystery", description: "Answer the question.", type: "dysphasia", content: "What was hidden in the castle?", options: ["Gold", "Treasure", "A secret", "A dragon"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 7, title: "🌊 Ocean Adventure", description: "Answer the question.", type: "dysphasia", content: "What did they find under the ocean?", options: ["Pearls", "Shells", "Treasure chest", "All of these"], correctAnswer: 3, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 8, title: "🦁 Lion's Journey", description: "Answer the question.", type: "dysphasia", content: "Where did the lion go?", options: ["To the forest", "To the desert", "To the savanna", "To the jungle"], correctAnswer: 2, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 9, title: "🎭 The Play", description: "Answer the question.", type: "dysphasia", content: "What was the play about?", options: ["A princess", "A knight", "A hero", "A love story"], correctAnswer: 0, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 10, title: "🍰 Bakery Day", description: "Answer the question.", type: "dysphasia", content: "What did they bake?", options: ["Cake", "Cookies", "Bread", "All of these"], correctAnswer: 3, maxScore: 15, typeLabel: "Dysphasia Support" },
+
+        // Grade 3-4: Section 2 – Easy Math (Q11–Q20)
+        { id: 11, title: "🧮 Simple Addition", description: "Solve the problem.", type: "dyscalculia", content: "10 + 5 = ?", options: ["12", "13", "15", "16"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 12, title: "🧮 Add More", description: "Solve the problem.", type: "dyscalculia", content: "7 + 8 = ?", options: ["14", "15", "16", "17"], correctAnswer: 1, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 13, title: "➖ Subtraction", description: "Solve the problem.", type: "dyscalculia", content: "12 - 3 = ?", options: ["8", "9", "10", "11"], correctAnswer: 1, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 14, title: "➖ Take Away", description: "Solve the problem.", type: "dyscalculia", content: "15 - 5 = ?", options: ["8", "9", "10", "11"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 15, title: "✖️ Times", description: "Solve the problem.", type: "dyscalculia", content: "3 × 4 = ?", options: ["10", "11", "12", "13"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 16, title: "✖️ Double", description: "Solve the problem.", type: "dyscalculia", content: "5 × 2 = ?", options: ["8", "9", "10", "11"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 17, title: "➗ Share", description: "Solve the problem.", type: "dyscalculia", content: "12 ÷ 3 = ?", options: ["2", "3", "4", "5"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 18, title: "🧮 Story Math", description: "Solve the problem.", type: "dyscalculia", content: "Tom has 10 marbles. He gets 5 more. How many total?", options: ["12", "13", "14", "15"], correctAnswer: 3, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 19, title: "🧮 Count Down", description: "Solve the problem.", type: "dyscalculia", content: "Lisa has 20 stickers. She gives away 8. How many left?", options: ["10", "11", "12", "13"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 20, title: "🧮 Group Math", description: "Solve the problem.", type: "dyscalculia", content: "There are 3 baskets with 4 apples each. Total apples?", options: ["10", "11", "12", "13"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" }
+    ],
+    grade56: [
+        // Grade 5-6: Section 1 – Reading & Comprehension (Q1–Q10)
+        { id: 1, title: "📚 The Lost Journal", description: "Answer the question.", type: "dysphasia", content: "What was the central theme of 'The Lost Journal'?", options: ["Betrayal and redemption", "Discovery and growth", "Adventure and danger", "Mystery and intrigue"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 2, title: "📚 The Lost Journal", description: "Answer the question.", type: "dysphasia", content: "Why did the protagonist keep the journal hidden?", options: ["Fear of judgment", "Protection of secrets", "Embarrassment", "All of the above"], correctAnswer: 3, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 3, title: "📚 The Lost Journal", description: "Answer the question.", type: "dysphasia", content: "How did the journal change the protagonist's relationships?", options: ["Strengthened bonds", "Created distance", "Revealed trust", "Improved communication"], correctAnswer: 0, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 4, title: "🌍 Across the Ocean", description: "Answer the question.", type: "dysphasia", content: "What was the primary conflict in 'Across the Ocean'?", options: ["Cultural differences", "Personal ambitions", "Environmental challenges", "Political tensions"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 5, title: "🌍 Across the Ocean", description: "Answer the question.", type: "dysphasia", content: "Which character showed the most growth throughout the story?", options: ["The protagonist", "The antagonist", "The mentor", "The ally"], correctAnswer: 0, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 6, title: "⚡ The Legacy", description: "Answer the question.", type: "dysphasia", content: "What does 'the legacy' refer to in this context?", options: ["Inherited wealth", "Family secrets", "Values and wisdom", "Historical artifacts"], correctAnswer: 2, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 7, title: "⚡ The Legacy", description: "Answer the question.", type: "dysphasia", content: "How is the legacy passed to the next generation?", options: ["Through stories", "Through actions", "Through teaching", "Through all methods"], correctAnswer: 3, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 8, title: "🎭 Voices of Change", description: "Answer the question.", type: "dysphasia", content: "What social issue was highlighted in 'Voices of Change'?", options: ["Equality", "Justice", "Freedom", "All of the above"], correctAnswer: 3, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 9, title: "🎭 Voices of Change", description: "Answer the question.", type: "dysphasia", content: "How did the community respond to the change?", options: ["With resistance", "With support", "With indifference", "With confusion"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
+        { id: 10, title: "🔬 The Experiment", description: "Answer the question.", type: "dysphasia", content: "What surprising result did the experiment yield?", options: ["Expected outcome", "Unexpected discovery", "Failed hypothesis", "Inconclusive data"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
+
+        // Grade 5-6: Section 2 – Mathematics & Logic (Q11–Q20)
+        { id: 11, title: "🧮 Decimal Addition", description: "Solve the problem.", type: "dyscalculia", content: "12.5 + 8.7 = ?", options: ["20.2", "21.2", "22.2", "23.2"], correctAnswer: 1, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 12, title: "🧮 Decimal Operations", description: "Solve the problem.", type: "dyscalculia", content: "25.6 – 7.3 = ?", options: ["18.3", "18.5", "18.8", "19.2"], correctAnswer: 0, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 13, title: "✖️ Multiplication", description: "Solve the problem.", type: "dyscalculia", content: "12 × 15 = ?", options: ["150", "165", "175", "180"], correctAnswer: 1, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 14, title: "➗ Division", description: "Solve the problem.", type: "dyscalculia", content: "144 ÷ 12 = ?", options: ["10", "11", "12", "13"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 15, title: "📊 Fractions", description: "Solve the problem.", type: "dyscalculia", content: "1/2 + 1/4 = ?", options: ["1/6", "1/4", "3/4", "1/2"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 16, title: "📊 Percentages", description: "Solve the problem.", type: "dyscalculia", content: "What is 25% of 80?", options: ["15", "18", "20", "25"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 17, title: "🔢 Exponents", description: "Solve the problem.", type: "dyscalculia", content: "2³ = ?", options: ["6", "8", "16", "32"], correctAnswer: 1, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 18, title: "🧮 Complex Problem", description: "Solve the problem.", type: "dyscalculia", content: "If a book costs $12 and is on sale for 30% off, what is the new price?", options: ["$8.40", "$8.80", "$9.00", "$9.50"], correctAnswer: 0, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 19, title: "🧮 Ratio Problem", description: "Solve the problem.", type: "dyscalculia", content: "The ratio of boys to girls is 3:2. If there are 15 boys, how many girls?", options: ["8 girls", "9 girls", "10 girls", "12 girls"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
+        { id: 20, title: "🧮 Area Problem", description: "Solve the problem.", type: "dyscalculia", content: "A rectangular garden is 8m long and 5m wide. What is its area?", options: ["30 m²", "35 m²", "40 m²", "45 m²"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" }
+    ]
 };
+
+
+
 
 // DOM Elements
 const elements = {
@@ -116,6 +168,7 @@ const elements = {
     playAgain: document.getElementById('play-again'),
     backToWelcome: document.getElementById('back-to-welcome'),
     viewProgress: document.getElementById('view-progress'),
+    goHome: document.getElementById('go-home'),
     // Accessibility elements
     fontSizeToggle: document.getElementById('font-size-toggle'),
     highContrastToggle: document.getElementById('high-contrast-toggle'),
@@ -127,12 +180,25 @@ const elements = {
 
 // Initialize Game
 function initGame() {
-    // Check for URL parameters to pre-fill student name
+    // Check for URL parameters to pre-fill student name and grade
     const urlParams = new URLSearchParams(window.location.search);
     const studentName = urlParams.get('name');
+    const studentGrade = urlParams.get('grade');
+    
     if (studentName) {
         if (elements.playerName) {
             elements.playerName.value = decodeURIComponent(studentName);
+        }
+    }
+    
+    // Auto-select grade if provided via URL parameter
+    if (studentGrade && ['grade12', 'grade34', 'grade56'].includes(studentGrade)) {
+        gameState.ageGroup = studentGrade;
+        // Auto-select the grade button in UI
+        const gradeBtn = document.querySelector(`[data-age="${studentGrade}"]`);
+        if (gradeBtn) {
+            document.querySelectorAll('.age-btn').forEach(btn => btn.classList.remove('active'));
+            gradeBtn.classList.add('active');
         }
     }
 
@@ -143,14 +209,30 @@ function initGame() {
     initSpeechSynthesis();
 
     // Event Listeners
-    elements.startGame.addEventListener('click', startGame);
-    document.getElementById('start-quiz').addEventListener('click', startQuiz);
-    elements.nextChallenge.addEventListener('click', nextChallenge);
-    elements.restartGame.addEventListener('click', restartGame);
-    elements.playAgain.addEventListener('click', playAgain);
-    elements.backToWelcome.addEventListener('click', backToWelcome);
+    if (elements.startGame) {
+        elements.startGame.addEventListener('click', startGame);
+    }
+    const startQuizBtn = document.getElementById('start-quiz');
+    if (startQuizBtn) {
+        startQuizBtn.addEventListener('click', startQuiz);
+    }
+    if (elements.nextChallenge) {
+        elements.nextChallenge.addEventListener('click', nextChallenge);
+    }
+    if (elements.restartGame) {
+        elements.restartGame.addEventListener('click', restartGame);
+    }
+    if (elements.playAgain) {
+        elements.playAgain.addEventListener('click', playAgain);
+    }
+    if (elements.backToWelcome) {
+        elements.backToWelcome.addEventListener('click', backToWelcome);
+    }
     if (elements.viewProgress) {
         elements.viewProgress.addEventListener('click', viewProgress);
+    }
+    if (elements.goHome) {
+        elements.goHome.addEventListener('click', goHome);
     }
     if (elements.readAloud) {
         elements.readAloud.addEventListener('click', () => {
@@ -192,13 +274,22 @@ function initGame() {
 // Navigate to Progress Page
 function viewProgress() {
     try {
+        console.log('viewProgress called');
+        console.log('gameState.playerName:', gameState.playerName);
+        console.log('typeof gameState.playerName:', typeof gameState.playerName);
+        
         // Ensure the latest player name is stored for filtering on progress page
         if (gameState.playerName && typeof gameState.playerName === 'string') {
+            console.log('Setting userName to:', gameState.playerName);
             localStorage.setItem('userName', gameState.playerName);
+            console.log('Retrieved userName from localStorage:', localStorage.getItem('userName'));
+        } else {
+            console.warn('gameState.playerName is not a valid string:', gameState.playerName);
         }
     } catch (e) {
         console.warn('Unable to sync userName to localStorage before navigating to progress page.', e);
     }
+    console.log('Navigating to progress.html');
     window.location.href = '../progress.html';
 }
 
@@ -503,11 +594,18 @@ function startGame() {
     // Shuffle challenges for this session
     gameState.challenges = [...challengesByAge[gameState.ageGroup]].sort(() => Math.random() - 0.5);
 
-    // Show passages screen first
-    showScreen('passages-screen');
-
     // Create celebration for starting
     createCelebration();
+
+    // Grade 5-6 gets passage screen, Grades 1-2 and 3-4 go straight to quiz
+    if (gameState.ageGroup === 'grade56') {
+        showScreen('passages-screen');
+    } else {
+        // For grades 1-2 and 3-4, skip passages and start quiz directly
+        showScreen('game-screen');
+        updateGameUI();
+        displayChallenge();
+    }
 }
 
 // Start Quiz (after reading passages)
@@ -794,175 +892,11 @@ function showResults() {
     // Create celebration effect
     createCelebration();
 
-    elements.finalScore.textContent = `Final Score: ${gameState.score}/${totalPossible} (${percentage}%)`;
-
-    // Display talent breakdown
-    elements.talentResults.innerHTML = '';
-    Object.entries(gameState.talentScores).forEach(([talent, score]) => {
-        if (score > 0) { // Only show categories with scores
-            const talentItem = document.createElement('div');
-            talentItem.className = 'talent-item';
-
-            const talentName = document.createElement('span');
-            talentName.className = 'talent-name';
-            talentName.textContent = getTalentDisplayName(talent);
-
-            const talentScore = document.createElement('span');
-            talentScore.className = 'talent-score';
-            talentScore.textContent = `${score} points`;
-
-            talentItem.appendChild(talentName);
-            talentItem.appendChild(talentScore);
-            elements.talentResults.appendChild(talentItem);
-        }
-    });
-
-    // Add learning disorder assessment
+    // Don't display detailed results on results screen - only show reward message
+    // All results are saved to localStorage and will be shown in progress.html
+    
+    // Get learning disorder assessment for saving
     const disorders = assessLearningDisorders();
-    if (disorders.length > 0) {
-        const disorderSection = document.createElement('div');
-        disorderSection.className = 'disorder-assessment';
-        disorderSection.style.cssText = `
-            margin-top: 30px;
-            padding: 25px;
-            background: linear-gradient(45deg, #fef3c7, #fde68a);
-            border-radius: 20px;
-            border: 2px solid #f59e0b;
-        `;
-
-        const disorderTitle = document.createElement('h3');
-        disorderTitle.textContent = '🎯 Learning Assessment Results';
-        disorderTitle.style.cssText = `
-            color: #92400e;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            text-align: center;
-        `;
-        disorderSection.appendChild(disorderTitle);
-
-        const disorderDescription = document.createElement('p');
-        disorderDescription.textContent = 'Based on your performance, you may benefit from additional support in these areas:';
-        disorderDescription.style.cssText = `
-            color: #92400e;
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 1.1rem;
-        `;
-        disorderSection.appendChild(disorderDescription);
-
-        disorders.forEach(disorder => {
-            const disorderCard = document.createElement('div');
-            disorderCard.style.cssText = `
-                background: white;
-                padding: 20px;
-                border-radius: 15px;
-                margin: 15px 0;
-                border: 2px solid #f59e0b;
-                box-shadow: 0 5px 15px rgba(245, 158, 11, 0.2);
-            `;
-
-            const disorderHeader = document.createElement('div');
-            disorderHeader.style.cssText = `
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                margin-bottom: 10px;
-            `;
-
-            const disorderIcon = document.createElement('span');
-            disorderIcon.textContent = disorder.icon;
-            disorderIcon.style.fontSize = '2rem';
-
-            const disorderName = document.createElement('h4');
-            disorderName.textContent = disorder.name;
-            disorderName.style.cssText = `
-                color: #92400e;
-                font-size: 1.3rem;
-                margin: 0;
-            `;
-
-            const severityBadge = document.createElement('span');
-            severityBadge.textContent = disorder.severity;
-            severityBadge.style.cssText = `
-                background: ${disorder.severity === 'High' ? '#ef4444' : '#f59e0b'};
-                color: white;
-                padding: 5px 10px;
-                border-radius: 10px;
-                font-size: 0.9rem;
-                font-weight: 600;
-                margin-left: auto;
-            `;
-
-            disorderHeader.appendChild(disorderIcon);
-            disorderHeader.appendChild(disorderName);
-            disorderHeader.appendChild(severityBadge);
-            disorderCard.appendChild(disorderHeader);
-
-            const disorderDesc = document.createElement('p');
-            disorderDesc.textContent = disorder.description;
-            disorderDesc.style.cssText = `
-                color: #6b7280;
-                margin: 10px 0;
-                font-size: 1rem;
-            `;
-            disorderCard.appendChild(disorderDesc);
-
-            const performanceBar = document.createElement('div');
-            performanceBar.style.cssText = `
-                background: #e5e7eb;
-                height: 10px;
-                border-radius: 5px;
-                overflow: hidden;
-                margin: 10px 0;
-            `;
-
-            const performanceFill = document.createElement('div');
-            performanceFill.style.cssText = `
-                background: linear-gradient(45deg, #f59e0b, #ef4444);
-                height: 100%;
-                width: ${disorder.percentage}%;
-                transition: width 1s ease;
-            `;
-
-            performanceBar.appendChild(performanceFill);
-            disorderCard.appendChild(performanceBar);
-
-            const performanceText = document.createElement('p');
-            performanceText.textContent = `Performance: ${disorder.percentage}%`;
-            performanceText.style.cssText = `
-                color: #92400e;
-                font-weight: 600;
-                margin: 5px 0 0 0;
-                font-size: 0.9rem;
-            `;
-            disorderCard.appendChild(performanceText);
-
-            disorderSection.appendChild(disorderCard);
-        });
-
-        const recommendation = document.createElement('div');
-        recommendation.style.cssText = `
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            border: 2px solid #10b981;
-        `;
-
-        const recommendationText = document.createElement('p');
-        recommendationText.innerHTML = `<strong>💡 Recommendation:</strong> Consider consulting with an educational specialist for a comprehensive assessment. This game is designed for educational purposes and should not replace professional diagnosis.`;
-        recommendationText.style.cssText = `
-            color: #065f46;
-            margin: 0;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        `;
-
-        recommendation.appendChild(recommendationText);
-        disorderSection.appendChild(recommendation);
-
-        elements.talentResults.appendChild(disorderSection);
-    }
 
     // Save game results automatically
     saveGameResults(totalPossible, percentage, disorders);
@@ -1098,8 +1032,14 @@ function playAgain() {
 
 // Back to Welcome / Navigate to Level 2
 function backToWelcome() {
-    // Navigate to Level 2 folder
-    window.location.href = '../level 2/index.html';
+    // Navigate to Level 2
+    window.location.href = 'levels/level-2/index.html';
+}
+
+// Go Home
+function goHome() {
+    // Navigate to home/index
+    window.location.href = '../consultant-dashboard.html';
 }
 
 // Add CSS for enhanced animations

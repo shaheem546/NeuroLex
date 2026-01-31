@@ -1,258 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Learning Progress Dashboard - EduTech Platform</title>
+    <meta name="description" content="Student Progress and Results - NeuroLex Assessment Platform">
+    <title>Student Progress - NeuroLex</title>
+
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- External Stylesheets -->
+    <link rel="stylesheet" href="css/consultant.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Progress Page Script -->
+    <script src="js/progress.js"></script>
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            --success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-            --warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-            --dark-bg: #0f172a;
-            --card-bg: rgba(255, 255, 255, 0.1);
-            --text-primary: #f8fafc;
-            --text-secondary: #cbd5e1;
-            --border-color: rgba(255, 255, 255, 0.1);
-            --shadow-light: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            --shadow-heavy: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--dark-bg);
-            color: var(--text-primary);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        /* Animated Background */
-        .animated-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
-                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
-        }
-
-        /* Header */
-        .header {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1.5rem 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            font-family: 'Poppins', sans-serif;
-            font-weight: 700;
-            font-size: 1.8rem;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .logo i {
-            font-size: 2.2rem;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .back-btn {
-            background: var(--accent-gradient);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-        }
-
-        .back-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-medium);
-        }
-
-        /* Main Content */
-        .main-content {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
-
-        .page-title {
-            font-family: 'Poppins', sans-serif;
-            font-size: 3rem;
-            font-weight: 700;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-align: center;
-            margin-bottom: 1rem;
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes glow {
-            from { text-shadow: 0 0 20px rgba(102, 126, 234, 0.5); }
-            to { text-shadow: 0 0 30px rgba(102, 126, 234, 0.8); }
-        }
-
-        .page-subtitle {
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-            margin-bottom: 3rem;
-        }
-
-        /* Summary Cards */
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 3rem;
-        }
-
-        .summary-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 2rem;
-            text-align: center;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .summary-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--accent-gradient);
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
-        }
-
-        .summary-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .summary-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-heavy);
-        }
-
-        .summary-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .summary-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .summary-label {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        /* Results Grid */
-        .results-grid {
-            display: grid;
-            gap: 2rem;
-        }
-
         .result-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
             padding: 2rem;
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .result-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--primary-gradient);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            z-index: -1;
-        }
-
-        .result-card:hover::before {
-            opacity: 0.1;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
         }
 
         .result-card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-heavy);
-            border-color: rgba(102, 126, 234, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
         }
 
         .result-header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: start;
             margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-            gap: 1rem;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 1rem;
         }
 
         .result-date {
@@ -261,452 +54,271 @@
         }
 
         .result-score {
-            background: var(--accent-gradient);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 1.1rem;
+            text-align: right;
+        }
+
+        .score-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .score-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
         }
 
         .result-details {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
             margin-bottom: 1.5rem;
         }
 
         .detail-item {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
         }
 
         .detail-icon {
-            font-size: 1.2rem;
+            font-size: 1.5rem;
+        }
+
+        .detail-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
             color: var(--text-secondary);
         }
 
-        .detail-text {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
+        .detail-value {
+            font-weight: 600;
+            color: var(--text-primary);
         }
 
-        .talent-scores {
+        .talents-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 1rem;
             margin-bottom: 1.5rem;
         }
 
         .talent-item {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.03);
             padding: 1rem;
             border-radius: 12px;
-            text-align: center;
-            border: 1px solid var(--border-color);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .talent-name {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--text-secondary);
             margin-bottom: 0.5rem;
         }
 
         .talent-score {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--text-primary);
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #667eea;
         }
 
-        .disorder-section {
-            background: linear-gradient(45deg, #fef3c7, #fde68a);
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-top: 1.5rem;
-            border: 2px solid #f59e0b;
-        }
-
-        .disorder-title {
-            color: #92400e;
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-
-        .disorder-list {
-            display: grid;
-            gap: 1rem;
-        }
-
-        .disorder-item {
-            background: white;
+        .disorders-section {
+            background: rgba(255, 119, 198, 0.1);
+            border: 1px solid rgba(255, 119, 198, 0.2);
+            border-radius: 12px;
             padding: 1rem;
-            border-radius: 10px;
-            border: 1px solid #f59e0b;
+            margin-top: 1.5rem;
         }
 
-        .disorder-header {
+        .disorders-title {
+            font-size: 0.9rem;
+            color: #ff77c6;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            margin-bottom: 0.5rem;
         }
 
-        .disorder-icon {
-            font-size: 1.5rem;
+        .disorder-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid #ff77c6;
         }
 
         .disorder-name {
-            color: #92400e;
             font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .disorder-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
         }
 
         .disorder-severity {
-            background: #f59e0b;
-            color: white;
-            padding: 0.2rem 0.5rem;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            margin-left: auto;
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
 
-        .disorder-percentage {
-            color: #6b7280;
-            font-size: 0.9rem;
+        .severity-high {
+            background: rgba(244, 63, 94, 0.2);
+            color: #f43f5e;
         }
 
-        /* Empty State */
+        .severity-moderate {
+            background: rgba(250, 176, 0, 0.2);
+            color: #fbb000;
+        }
+
+        .severity-low {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .no-results-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
         .empty-state {
+            grid-column: 1 / -1;
             text-align: center;
             padding: 4rem 2rem;
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border-color);
-            border-radius: 24px;
         }
 
-        .empty-icon {
-            font-size: 4rem;
-            color: var(--text-secondary);
+        .empty-state-icon {
+            font-size: 5rem;
             margin-bottom: 1rem;
+            opacity: 0.3;
         }
 
-        .empty-title {
-            font-size: 1.5rem;
-            color: var(--text-primary);
-            margin-bottom: 1rem;
-        }
-
-        .empty-description {
+        .empty-state-text {
             color: var(--text-secondary);
             margin-bottom: 2rem;
         }
 
-        .start-game-btn {
-            background: var(--accent-gradient);
+        .btn-back {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 1rem 2rem;
+            padding: 0.75rem 1.5rem;
             border: none;
-            border-radius: 12px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s ease;
             font-weight: 600;
-            font-size: 1rem;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            text-decoration: none;
         }
 
-        .start-game-btn:hover {
+        .btn-back:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-medium);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
         }
 
-        /* Loading Animation */
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 4rem;
-        }
-
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
-            border-top: 3px solid #4facfe;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Responsive Design */
         @media (max-width: 768px) {
-            .page-title {
-                font-size: 2rem;
+            .result-details {
+                grid-template-columns: 1fr;
             }
-
-            .result-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .talent-scores {
+            .talents-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
 </head>
+
 <body>
-    <!-- Animated Background -->
-    <div class="animated-bg"></div>
-
-    <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <div class="logo">
-                <i class="fas fa-graduation-cap"></i>
-                <span>EduTech Platform</span>
+    <div class="dashboard-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <i class="fas fa-brain"></i>
+                <span>NeuroLex</span>
             </div>
-            <a href="index.html" class="back-btn">
-                <i class="fas fa-arrow-left"></i>
-                Back to Dashboard
-            </a>
-        </div>
-    </header>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <h1 class="page-title">Learning Progress Dashboard</h1>
-        <p class="page-subtitle">Track your learning journey and see your improvement over time</p>
+            <nav class="sidebar-nav">
+                <a class="nav-item" href="consultant-dashboard.html" id="navDashboard">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a class="nav-item" href="students.html" id="navStudents">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>Students</span>
+                </a>
+                <a class="nav-item" href="game/index.html">
+                    <i class="fas fa-clipboard-check"></i>
+                    <span>Assessments</span>
+                </a>
+                <a class="nav-item" href="analytics.html" id="navAnalytics">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </a>
+                <a class="nav-item" href="resources.html" id="navResources">
+                    <i class="fas fa-book-open"></i>
+                    <span>Resources</span>
+                </a>
+                <a class="nav-item" href="settings.html" id="navSettings">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+                <a class="nav-item" href="support.html" id="navSupport">
+                    <i class="fas fa-headset"></i>
+                    <span>Support</span>
+                </a>
+            </nav>
 
-        <!-- Summary Cards -->
-        <div class="summary-grid" id="summaryGrid">
-            <div class="loading">
-                <div class="spinner"></div>
+            <div class="sidebar-footer">
+                <a class="nav-item" href="#" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
             </div>
+        </aside>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper">
+            <main class="main-content">
+                <!-- Header -->
+                <div class="dashboard-header">
+                    <div class="welcome-text">
+                        <h1>Progress & Results</h1>
+                        <p id="studentNameDisplay" style="color: var(--text-secondary); margin-top: 0.5rem;">Loading...</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="logout-btn-header" id="backBtn" title="Back">
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div id="resultsContent" style="padding: 2rem 0;">
+                    <p style="text-align: center; color: var(--text-secondary);">Loading...</p>
+                </div>
+            </main>
         </div>
-
-        <!-- Results Grid -->
-        <div class="results-grid" id="resultsGrid">
-            <div class="loading">
-                <div class="spinner"></div>
-            </div>
-        </div>
-    </main>
-
-    <script>
-        // Get user information
-        function getUserInfo() {
-            const userName = localStorage.getItem('userName') || 'User';
-            const userRole = localStorage.getItem('userRole') || 'student';
-            return { userName, userRole };
-        }
-
-        // Format date
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-
-        // Get talent display name
-        function getTalentDisplayName(talent) {
-            const names = {
-                creativity: '🎨 Creativity',
-                logic: '🧩 Logic',
-                memory: '🧠 Memory',
-                observation: '🔍 Observation',
-                problemSolving: '💡 Problem Solving',
-                dyscalculia: '🔢 Dyscalculia Support',
-                dysphasia: '🗣️ Dysphasia Support',
-                dysgraphia: '✏️ Dysgraphia Support'
-            };
-            return names[talent] || talent;
-        }
-
-        // Calculate summary statistics
-        function calculateSummary(results) {
-            if (results.length === 0) return null;
-
-            const totalGames = results.length;
-            const totalScore = results.reduce((sum, result) => sum + result.score, 0);
-            const totalPossible = results.reduce((sum, result) => sum + result.totalPossible, 0);
-            const averagePercentage = Math.round((totalScore / totalPossible) * 100);
-            
-            const allDisorders = results.flatMap(result => result.disorders || []);
-            const uniqueDisorders = [...new Set(allDisorders.map(d => d.name))];
-
-            return {
-                totalGames,
-                averageScore: Math.round(totalScore / totalGames),
-                averagePercentage,
-                uniqueDisorders: uniqueDisorders.length
-            };
-        }
-
-        // Render summary cards
-        function renderSummary(summary) {
-            const summaryGrid = document.getElementById('summaryGrid');
-            
-            if (!summary) {
-                summaryGrid.innerHTML = `
-                    <div class="summary-card">
-                        <div class="summary-icon">
-                            <i class="fas fa-gamepad"></i>
-                        </div>
-                        <div class="summary-number">0</div>
-                        <div class="summary-label">Games Played</div>
-                    </div>
-                `;
-                return;
-            }
-
-            summaryGrid.innerHTML = `
-                <div class="summary-card">
-                    <div class="summary-icon">
-                        <i class="fas fa-gamepad"></i>
-                    </div>
-                    <div class="summary-number">${summary.totalGames}</div>
-                    <div class="summary-label">Games Played</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-icon">
-                        <i class="fas fa-trophy"></i>
-                    </div>
-                    <div class="summary-number">${summary.averageScore}</div>
-                    <div class="summary-label">Average Score</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-icon">
-                        <i class="fas fa-percentage"></i>
-                    </div>
-                    <div class="summary-number">${summary.averagePercentage}%</div>
-                    <div class="summary-label">Average Performance</div>
-                </div>
-                <div class="summary-card">
-                    <div class="summary-icon">
-                        <i class="fas fa-brain"></i>
-                    </div>
-                    <div class="summary-number">${summary.uniqueDisorders}</div>
-                    <div class="summary-label">Learning Areas</div>
-                </div>
-            `;
-        }
-
-        // Render results
-        function renderResults(results) {
-            const resultsGrid = document.getElementById('resultsGrid');
-            
-            if (results.length === 0) {
-                resultsGrid.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <h3 class="empty-title">No Progress Data Yet</h3>
-                        <p class="empty-description">
-                            Start your learning adventure to see your progress here. 
-                            Complete games and challenges to track your improvement over time.
-                        </p>
-                        <a href="game/index.html" class="start-game-btn">
-                            <i class="fas fa-play"></i>
-                            Start Learning Adventure
-                        </a>
-                    </div>
-                `;
-                return;
-            }
-
-            // Sort results by date (newest first)
-            const sortedResults = results.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            resultsGrid.innerHTML = sortedResults.map(result => `
-                <div class="result-card">
-                    <div class="result-header">
-                        <div>
-                            <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">${result.playerName}'s Learning Session</h3>
-                            <div class="result-date">${formatDate(result.date)}</div>
-                        </div>
-                        <div class="result-score">${result.score}/${result.totalPossible} (${result.percentage}%)</div>
-                    </div>
-                    
-                    <div class="result-details">
-                        <div class="detail-item">
-                            <i class="fas fa-user detail-icon"></i>
-                            <span class="detail-text">Age Group: ${result.ageGroup}</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-tasks detail-icon"></i>
-                            <span class="detail-text">Challenges: ${result.challengesCompleted}</span>
-                        </div>
-                        <div class="detail-item">
-                            <i class="fas fa-clock detail-icon"></i>
-                            <span class="detail-text">Duration: ~${Math.round(result.challengesCompleted * 2)} minutes</span>
-                        </div>
-                    </div>
-                    
-                    <div class="talent-scores">
-                        ${Object.entries(result.talentScores)
-                            .filter(([_, score]) => score > 0)
-                            .map(([talent, score]) => `
-                                <div class="talent-item">
-                                    <div class="talent-name">${getTalentDisplayName(talent)}</div>
-                                    <div class="talent-score">${score} pts</div>
-                                </div>
-                            `).join('')}
-                    </div>
-                    
-                    ${result.disorders && result.disorders.length > 0 ? `
-                        <div class="disorder-section">
-                            <h4 class="disorder-title">🎯 Learning Assessment Results</h4>
-                            <div class="disorder-list">
-                                ${result.disorders.map(disorder => `
-                                    <div class="disorder-item">
-                                        <div class="disorder-header">
-                                            <span class="disorder-icon">${disorder.icon}</span>
-                                            <span class="disorder-name">${disorder.name}</span>
-                                            <span class="disorder-severity">${disorder.severity}</span>
-                                        </div>
-                                        <div class="disorder-percentage">Performance: ${disorder.percentage}%</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    ` : ''}
-                </div>
-            `).join('');
-        }
-
-        // Initialize page
-        window.onload = function() {
-            const { userName, userRole } = getUserInfo();
-            
-            // Get saved results
-            const savedResults = JSON.parse(localStorage.getItem('gameResults') || '[]');
-            
-            // Filter results for current user (if needed)
-            const userResults = savedResults.filter(result => 
-                result.playerName === userName || !userName || userName === 'User'
-            );
-            
-            // Render content
-            const summary = calculateSummary(userResults);
-            renderSummary(summary);
-            renderResults(userResults);
-        };
-    </script>
+    </div>
 </body>
-</html> 
+
+</html>

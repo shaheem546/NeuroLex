@@ -115,8 +115,9 @@ async function loadStudents(search = '') {
                             </div>
                         </td>
                         <td>
+                            <button class="action-btn" data-action="assessment" data-id="${student._id}" data-name="${student.firstName} ${student.lastName}" data-grade="${student.grade}" title="Assessment"><i class="fas fa-star"></i></button>
+                            <button class="action-btn" data-action="view-results" data-id="${student._id}" data-name="${student.firstName} ${student.lastName}" title="View Results"><i class="fas fa-chart-bar"></i></button>
                             <button class="action-btn" data-action="edit" data-id="${student._id}" title="Edit"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn" data-action="test" data-id="${student._id}" data-name="${student.firstName} ${student.lastName}" title="Start Game"><i class="fas fa-clipboard-check"></i></button>
                             <button class="action-btn btn-delete" data-action="delete" data-id="${student._id}" data-name="${student.firstName} ${student.lastName}" title="Deactivate"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
@@ -346,8 +347,24 @@ window.onload = function () {
         tableBody.addEventListener('click', e => {
             const btn = e.target.closest('.action-btn');
             if (!btn) return;
-            const { action, id, name } = btn.dataset;
-            if (action === 'edit') editStudent(id);
+            const { action, id, name, grade } = btn.dataset;
+            if (action === 'assessment') {
+                // Map grade to game grade group
+                let gradeGroup = 'grade12';
+                const gradeNum = parseInt(grade);
+                if (gradeNum >= 3 && gradeNum <= 4) {
+                    gradeGroup = 'grade34';
+                } else if (gradeNum >= 5 && gradeNum <= 6) {
+                    gradeGroup = 'grade56';
+                }
+                window.location.href = `game/index.html?name=${encodeURIComponent(name)}&grade=${gradeGroup}`;
+            }
+            else if (action === 'view-results') {
+                // Navigate to progress page with student name filter
+                localStorage.setItem('userName', name);
+                window.location.href = 'progress.html';
+            }
+            else if (action === 'edit') editStudent(id);
             else if (action === 'test') window.location.href = `game/index.html?student=${id}&name=${encodeURIComponent(name)}`;
             else if (action === 'delete') deleteStudent(id, name);
         });

@@ -73,12 +73,12 @@
                     <div class="age-group-selection">
                         <label class="input-label">
                             <i class="fas fa-users"></i>
-                            Choose Your Age Group
+                            Choose Grade Level
                         </label>
                         <div class="age-buttons">
-                            <button class="age-btn active" data-age="young">Ages 6-8</button>
-                            <button class="age-btn" data-age="middle">Ages 9-11</button>
-                            <button class="age-btn" data-age="older">Ages 12+</button>
+                            <button class="age-btn active" data-age="grade12">Grade 1-2</button>
+                            <button class="age-btn" data-age="grade34">Grade 3-4</button>
+                            <button class="age-btn" data-age="grade56">Grade 5-6</button>
                         </div>
                     </div>
 
@@ -235,10 +235,6 @@
                     <i class="fas fa-arrow-right"></i>
                     Next Challenge
                 </button>
-                <button id="restart-game" class="btn btn-secondary">
-                    <i class="fas fa-redo"></i>
-                    Restart
-                </button>
             </div>
         </div>
 
@@ -246,32 +242,29 @@
         <div id="results-screen" class="screen">
             <div class="results-content">
                 <div class="results-header">
-                    <div class="celebration-icon">🎉</div>
-                    <h2>Congratulations, Champion!</h2>
-                    <p class="results-subtitle">You've completed your learning adventure!</p>
+                    <div class="celebration-icon">�</div>
+                    <h2>Amazing Work, Champion! 🎉</h2>
+                    <p class="results-subtitle">You completed Level 1! You earned amazing rewards!</p>
                 </div>
 
-                <div class="score-summary">
-                    <div class="final-score-card">
-                        <i class="fas fa-trophy"></i>
-                        <p id="final-score">Final Score: 0/100</p>
-                    </div>
+                <div class="reward-message" id="reward-message" style="margin: 30px 0; padding: 25px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; color: white; text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 15px;">🏆✨</div>
+                    <h3 style="margin: 0 0 10px 0; font-size: 1.8rem;">You're Doing Great!</h3>
+                    <p style="margin: 0; font-size: 1.1rem;">Ready to unlock Level 2 and take on bigger challenges?</p>
                 </div>
-
-                <div id="talent-results" class="talent-results"></div>
 
                 <div class="results-actions">
-                    <button id="play-again" class="btn btn-primary">
-                        <i class="fas fa-play"></i>
-                        Play Again
-                    </button>
-                    <button id="back-to-welcome" class="btn btn-secondary">
-                        <i class="fas fa-home"></i>
-                        Level 2
+                    <button id="back-to-welcome" class="btn btn-primary" style="font-size: 1.2rem; padding: 15px 40px;">
+                        <i class="fas fa-star"></i>
+                        Level 2: Continue Adventure
                     </button>
                     <button id="view-progress" class="btn btn-secondary">
                         <i class="fas fa-chart-line"></i>
-                        View Progress
+                        View My Progress
+                    </button>
+                    <button id="go-home" class="btn btn-secondary">
+                        <i class="fas fa-home"></i>
+                        Home
                     </button>
                 </div>
             </div>
