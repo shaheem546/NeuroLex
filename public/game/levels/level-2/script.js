@@ -1,936 +1,416 @@
-// Dyslexia Detection Tool - Overlay Drawing Version
+/* script.js
+   All client-side logic for the Drawing Accuracy Assessment Tool.
+   - Handles navigation between steps
+   - Implements drawing with mouse + touch (pointer events)
+   - Provides pen/eraser/clear functionality
+   - Generates reference image from text and compares pixel data
+   - Calculates accuracy percentage and shows feedback
+*/
 
-class DyslexiaDetectionTool {
-    constructor() {
-        this.originalText = '';
-        this.drawingData = [];
-        this.canvas = null;
-        this.ctx = null;
-        this.isDrawing = false;
-        this.lastX = 0;
-        this.lastY = 0;
-        this.textDisplay = null;
-        
-        this.initializeElements();
-        this.setupEventListeners();
-    }
+/* ---------------------------
+   Utility & DOM references
+   --------------------------- */
+const el = id => document.getElementById(id);
 
-    initializeElements() {
-        // Get DOM elements
-        this.textInput = document.getElementById('textInput');
-        this.startTestBtn = document.getElementById('startTest');
-        this.testSection = document.getElementById('testSection');
-        this.originalTextDisplay = document.getElementById('originalTextDisplay');
-        this.canvas = document.getElementById('drawingCanvas');
-        this.clearCanvasBtn = document.getElementById('clearCanvas');
-        this.analyzeTextBtn = document.getElementById('analyzeText');
-        this.resultsSection = document.getElementById('resultsSection');
-        this.accuracyScore = document.getElementById('accuracyScore');
-        this.analysisResults = document.getElementById('analysisResults');
-        this.dyslexiaIndicators = document.getElementById('dyslexiaIndicators');
-        this.newTestBtn = document.getElementById('newTest');
-        this.exportResultsBtn = document.getElementById('exportResults');
+const step1 = el('step1');
+const step2 = el('step2');
+const step3 = el('step3');
 
-        // Initialize canvas context
-        this.ctx = this.canvas.getContext('2d');
-        this.setupCanvas();
-    }
+const promptInput = el('promptInput');
+const startBtn = el('startBtn');
 
-    setupCanvas() {
-        // Set canvas properties
-        this.ctx.lineCap = 'round';
-        this.ctx.lineJoin = 'round';
-        this.ctx.lineWidth = 20; // Much larger pen size to match text size
-        this.ctx.strokeStyle = '#e53e3e'; // Red color for drawing
-        this.ctx.globalAlpha = 0.8; // Semi-transparent
-        
-        // Make canvas transparent
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    }
+const displayPrompt = el('displayPrompt');
+const drawingCanvas = el('drawingCanvas');
+const guideCanvas = el('guideCanvas');
 
-    setupEventListeners() {
-        // Start test button
-        this.startTestBtn.addEventListener('click', () => this.startTest());
-        
-        // Canvas drawing events
-        this.canvas.addEventListener('mousedown', (e) => this.startDrawing(e));
-        this.canvas.addEventListener('mousemove', (e) => this.draw(e));
-        this.canvas.addEventListener('mouseup', () => this.stopDrawing());
-        this.canvas.addEventListener('mouseout', () => this.stopDrawing());
-        
-        // Touch events for mobile
-        this.canvas.addEventListener('touchstart', (e) => this.startDrawing(e));
-        this.canvas.addEventListener('touchmove', (e) => this.draw(e));
-        this.canvas.addEventListener('touchend', () => this.stopDrawing());
-        
-        // Control buttons
-        this.clearCanvasBtn.addEventListener('click', () => this.clearCanvas());
-        this.analyzeTextBtn.addEventListener('click', () => this.analyzeText());
-        this.newTestBtn.addEventListener('click', () => this.resetTest());
-        this.exportResultsBtn.addEventListener('click', () => this.exportResults());
-    }
+const penBtn = el('penBtn');
+const eraserBtn = el('eraserBtn');
+const clearBtn = el('clearBtn');
+const submitBtn = el('submitBtn');
+const backToStart = el('backToStart');
 
-    startTest() {
-        const text = this.textInput.value.trim();
-        if (!text) {
-            alert('Please enter some text to start the test.');
-            return;
-        }
+const sizeRange = el('sizeRange');
+const colorPicker = el('colorPicker');
 
-        this.originalText = text;
-        this.originalTextDisplay.textContent = text;
-        
-        // Resize canvas to match text display
-        this.resizeCanvasToText();
-        
-        this.testSection.style.display = 'block';
-        this.testSection.classList.add('fade-in');
-        
-        // Scroll to test section
-        this.testSection.scrollIntoView({ behavior: 'smooth' });
-    }
+const resultPrompt = el('resultPrompt');
+const childPreview = el('childPreview');
+const accuracyValue = el('accuracyValue');
+const accuracyFeedback = el('accuracyFeedback');
+const refPreview = el('refPreview');
 
-    resizeCanvasToText() {
-        const textDisplay = this.originalTextDisplay;
-        const rect = textDisplay.getBoundingClientRect();
-        
-        // Set canvas size to match text display
-        this.canvas.width = rect.width;
-        this.canvas.height = rect.height;
-        
-        // Reset canvas properties after resize
-        this.setupCanvas();
-    }
+const retryBtn = el('retryBtn');
+const downloadBtn = el('downloadBtn');
 
-    getMousePos(e) {
-        const rect = this.canvas.getBoundingClientRect();
-        const scaleX = this.canvas.width / rect.width;
-        const scaleY = this.canvas.height / rect.height;
-        
-        return {
-            x: (e.clientX - rect.left) * scaleX,
-            y: (e.clientY - rect.top) * scaleY
-        };
-    }
+/* ---------------------------
+   App state
+   --------------------------- */
+let tool = 'pen';
+let color = '#000000';
+let size = 6;
+let drawing = false;
+let lastPoint = null;
 
-    getTouchPos(e) {
-        const rect = this.canvas.getBoundingClientRect();
-        const scaleX = this.canvas.width / rect.width;
-        const scaleY = this.canvas.height / rect.height;
-        
-        return {
-            x: (e.touches[0].clientX - rect.left) * scaleX,
-            y: (e.touches[0].clientY - rect.top) * scaleY
-        };
-    }
+/* Use fixed logical canvas size for consistent comparison */
+const CANVAS_W = 900;
+const CANVAS_H = 360;
 
-    startDrawing(e) {
-        this.isDrawing = true;
-        const pos = e.type.includes('touch') ? this.getTouchPos(e) : this.getMousePos(e);
-        this.lastX = pos.x;
-        this.lastY = pos.y;
-        
-        // Start new drawing path
-        this.ctx.beginPath();
-        this.ctx.moveTo(this.lastX, this.lastY);
-        
-        // Store drawing data
-        this.drawingData.push({
-            type: 'start',
-            x: this.lastX,
-            y: this.lastY,
-            timestamp: Date.now()
-        });
-    }
-
-    draw(e) {
-        if (!this.isDrawing) return;
-        
-        e.preventDefault();
-        const pos = e.type.includes('touch') ? this.getTouchPos(e) : this.getMousePos(e);
-        
-        this.ctx.lineTo(pos.x, pos.y);
-        this.ctx.stroke();
-        
-        // Store drawing data
-        this.drawingData.push({
-            type: 'draw',
-            x: pos.x,
-            y: pos.y,
-            timestamp: Date.now()
-        });
-        
-        this.lastX = pos.x;
-        this.lastY = pos.y;
-    }
-
-    stopDrawing() {
-        if (this.isDrawing) {
-            this.isDrawing = false;
-            this.ctx.beginPath();
-            
-            // Store end of stroke
-            this.drawingData.push({
-                type: 'end',
-                timestamp: Date.now()
-            });
-        }
-    }
-
-    clearCanvas() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.drawingData = [];
-    }
-
-    analyzeText() {
-        if (this.drawingData.length === 0) {
-            alert('Please draw something before analyzing.');
-            return;
-        }
-
-        const analysis = this.performAnalysis();
-        this.displayResults(analysis);
-        this.resultsSection.style.display = 'block';
-        this.resultsSection.classList.add('fade-in');
-        
-        // Scroll to results
-        this.resultsSection.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    performAnalysis() {
-        const analysis = {
-            accuracy: this.calculateAccuracy(),
-            letterAnalysis: this.analyzeLetters(),
-            spacingAnalysis: this.analyzeSpacing(),
-            dyslexiaIndicators: this.detectDyslexiaPatterns(),
-            drawingMetrics: this.analyzeDrawingMetrics(),
-            textCoverage: this.analyzeTextCoverage()
-        };
-
-        return analysis;
-    }
-
-    calculateAccuracy() {
-        // Calculate accuracy based on drawing coverage and patterns
-        const coverage = this.calculateTextCoverage();
-        const patternAccuracy = this.calculatePatternAccuracy();
-        const consistency = this.calculateDrawingConsistency();
-        
-        // Weighted accuracy calculation
-        const accuracy = (coverage * 0.4) + (patternAccuracy * 0.4) + (consistency * 0.2);
-        return Math.round(accuracy);
-    }
-
-    calculateTextCoverage() {
-        // Analyze how well the drawing covers the text area
-        const textRect = this.originalTextDisplay.getBoundingClientRect();
-        const canvasRect = this.canvas.getBoundingClientRect();
-        
-        // Create a grid to analyze coverage
-        const gridSize = 20;
-        const cols = Math.floor(canvasRect.width / gridSize);
-        const rows = Math.floor(canvasRect.height / gridSize);
-        
-        let coveredCells = 0;
-        let totalCells = cols * rows;
-        
-        // Sample drawing data to estimate coverage
-        const samplePoints = this.drawingData.filter(point => point.type === 'draw');
-        const coverageMap = new Set();
-        
-        samplePoints.forEach(point => {
-            const col = Math.floor(point.x / gridSize);
-            const row = Math.floor(point.y / gridSize);
-            coverageMap.add(`${col},${row}`);
-        });
-        
-        coveredCells = coverageMap.size;
-        return Math.min((coveredCells / totalCells) * 100, 100);
-    }
-
-    calculatePatternAccuracy() {
-        // Analyze drawing patterns for text-like characteristics
-        const patterns = this.analyzeDrawingPatterns();
-        let accuracy = 0;
-        
-        // Check for linear patterns (like writing)
-        if (patterns.linearity > 0.6) accuracy += 30;
-        
-        // Check for consistent stroke direction
-        if (patterns.directionConsistency > 0.7) accuracy += 25;
-        
-        // Check for appropriate stroke density
-        if (patterns.density > 0.3 && patterns.density < 0.8) accuracy += 25;
-        
-        // Check for text-like rhythm
-        if (patterns.rhythm > 0.5) accuracy += 20;
-        
-        return Math.min(accuracy, 100);
-    }
-
-    calculateDrawingConsistency() {
-        // Analyze consistency in drawing style
-        const strokes = this.getStrokes();
-        if (strokes.length < 2) return 50;
-        
-        const strokeLengths = strokes.map(stroke => stroke.length);
-        const strokeDurations = strokes.map(stroke => stroke.duration);
-        
-        const lengthConsistency = this.calculateConsistency(strokeLengths);
-        const durationConsistency = this.calculateConsistency(strokeDurations);
-        
-        return (lengthConsistency + durationConsistency) / 2;
-    }
-
-    calculateConsistency(values) {
-        if (values.length < 2) return 100;
-        
-        const mean = values.reduce((sum, val) => sum + val, 0) / values.length;
-        const variance = values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / values.length;
-        const stdDev = Math.sqrt(variance);
-        
-        return Math.max(0, 100 - (stdDev / mean) * 100);
-    }
-
-    analyzeDrawingPatterns() {
-        const patterns = {
-            linearity: 0,
-            directionConsistency: 0,
-            density: 0,
-            rhythm: 0
-        };
-        
-        if (this.drawingData.length < 10) return patterns;
-        
-        // Analyze linearity (how straight the lines are)
-        patterns.linearity = this.analyzeLinearity();
-        
-        // Analyze direction consistency
-        patterns.directionConsistency = this.analyzeDirectionConsistency();
-        
-        // Analyze density
-        patterns.density = this.analyzeDensity();
-        
-        // Analyze rhythm (timing patterns)
-        patterns.rhythm = this.analyzeRhythm();
-        
-        return patterns;
-    }
-
-    analyzeLinearity() {
-        const strokes = this.getStrokes();
-        if (strokes.length === 0) return 0;
-        
-        let totalLinearity = 0;
-        strokes.forEach(stroke => {
-            if (stroke.points.length < 3) return;
-            
-            let linearity = 0;
-            for (let i = 1; i < stroke.points.length - 1; i++) {
-                const prev = stroke.points[i - 1];
-                const curr = stroke.points[i];
-                const next = stroke.points[i + 1];
-                
-                // Calculate angle deviation
-                const angle1 = Math.atan2(curr.y - prev.y, curr.x - prev.x);
-                const angle2 = Math.atan2(next.y - curr.y, next.x - curr.x);
-                const deviation = Math.abs(angle1 - angle2);
-                
-                linearity += Math.max(0, 1 - deviation / Math.PI);
-            }
-            
-            totalLinearity += linearity / (stroke.points.length - 2);
-        });
-        
-        return totalLinearity / strokes.length;
-    }
-
-    analyzeDirectionConsistency() {
-        const strokes = this.getStrokes();
-        if (strokes.length < 2) return 0;
-        
-        const directions = strokes.map(stroke => {
-            if (stroke.points.length < 2) return 0;
-            const start = stroke.points[0];
-            const end = stroke.points[stroke.points.length - 1];
-            return Math.atan2(end.y - start.y, end.x - start.x);
-        });
-        
-        // Calculate consistency of directions
-        let consistency = 0;
-        for (let i = 1; i < directions.length; i++) {
-            const diff = Math.abs(directions[i] - directions[i - 1]);
-            const normalizedDiff = Math.min(diff, 2 * Math.PI - diff) / Math.PI;
-            consistency += 1 - normalizedDiff;
-        }
-        
-        return consistency / (directions.length - 1);
-    }
-
-    analyzeDensity() {
-        const totalPoints = this.drawingData.filter(point => point.type === 'draw').length;
-        const canvasArea = this.canvas.width * this.canvas.height;
-        return totalPoints / (canvasArea / 1000); // Normalize by area
-    }
-
-    analyzeRhythm() {
-        const strokes = this.getStrokes();
-        if (strokes.length < 3) return 0;
-        
-        const intervals = [];
-        for (let i = 1; i < strokes.length; i++) {
-            const interval = strokes[i].startTime - strokes[i - 1].endTime;
-            intervals.push(interval);
-        }
-        
-        return this.calculateConsistency(intervals) / 100;
-    }
-
-    getStrokes() {
-        const strokes = [];
-        let currentStroke = null;
-        
-        this.drawingData.forEach(point => {
-            if (point.type === 'start') {
-                if (currentStroke) {
-                    strokes.push(currentStroke);
-                }
-                currentStroke = {
-                    points: [{ x: point.x, y: point.y }],
-                    startTime: point.timestamp,
-                    endTime: point.timestamp
-                };
-            } else if (point.type === 'draw' && currentStroke) {
-                currentStroke.points.push({ x: point.x, y: point.y });
-                currentStroke.endTime = point.timestamp;
-            } else if (point.type === 'end' && currentStroke) {
-                currentStroke.endTime = point.timestamp;
-                strokes.push(currentStroke);
-                currentStroke = null;
-            }
-        });
-        
-        if (currentStroke) {
-            strokes.push(currentStroke);
-        }
-        
-        return strokes.map(stroke => ({
-            ...stroke,
-            length: this.calculateStrokeLength(stroke.points),
-            duration: stroke.endTime - stroke.startTime
-        }));
-    }
-
-    calculateStrokeLength(points) {
-        let length = 0;
-        for (let i = 1; i < points.length; i++) {
-            const dx = points[i].x - points[i - 1].x;
-            const dy = points[i].y - points[i - 1].y;
-            length += Math.sqrt(dx * dx + dy * dy);
-        }
-        return length;
-    }
-
-    analyzeLetters() {
-        // Analyze letter formation patterns
-        const analysis = {
-            reversals: this.detectReversals(),
-            inversions: this.detectInversions(),
-            omissions: this.detectOmissions(),
-            substitutions: this.detectSubstitutions()
-        };
-        
-        return analysis;
-    }
-
-    detectReversals() {
-        const reversals = [];
-        const strokes = this.getStrokes();
-        
-        // Look for patterns that might indicate letter reversals
-        strokes.forEach((stroke, index) => {
-            if (stroke.points.length < 3) return;
-            
-            // Check for backward movement patterns
-            const direction = this.calculateStrokeDirection(stroke);
-            if (direction < -Math.PI / 2 || direction > Math.PI / 2) {
-                reversals.push({
-                    strokeIndex: index,
-                    direction: direction,
-                    type: 'backward_movement'
-                });
-            }
-        });
-        
-        return reversals;
-    }
-
-    detectInversions() {
-        const inversions = [];
-        const strokes = this.getStrokes();
-        
-        // Look for vertical inversion patterns
-        strokes.forEach((stroke, index) => {
-            if (stroke.points.length < 3) return;
-            
-            const verticalMovement = this.calculateVerticalMovement(stroke);
-            if (verticalMovement < -0.5) { // Upward movement
-                inversions.push({
-                    strokeIndex: index,
-                    verticalMovement: verticalMovement,
-                    type: 'upward_movement'
-                });
-            }
-        });
-        
-        return inversions;
-    }
-
-    detectOmissions() {
-        const omissions = [];
-        const textLength = this.originalText.length;
-        const strokes = this.getStrokes();
-        
-        // Estimate expected strokes based on text length
-        const expectedStrokes = Math.max(textLength * 0.5, 5);
-        
-        if (strokes.length < expectedStrokes * 0.6) {
-            omissions.push({
-                expected: expectedStrokes,
-                actual: strokes.length,
-                type: 'insufficient_strokes'
-            });
-        }
-        
-        return omissions;
-    }
-
-    detectSubstitutions() {
-        const substitutions = [];
-        const strokes = this.getStrokes();
-        
-        // Look for unusual stroke patterns that might indicate substitutions
-        strokes.forEach((stroke, index) => {
-            if (stroke.points.length < 5) return;
-            
-            const complexity = this.calculateStrokeComplexity(stroke);
-            if (complexity > 0.8) {
-                substitutions.push({
-                    strokeIndex: index,
-                    complexity: complexity,
-                    type: 'high_complexity'
-                });
-            }
-        });
-        
-        return substitutions;
-    }
-
-    calculateStrokeDirection(stroke) {
-        if (stroke.points.length < 2) return 0;
-        
-        const start = stroke.points[0];
-        const end = stroke.points[stroke.points.length - 1];
-        return Math.atan2(end.y - start.y, end.x - start.x);
-    }
-
-    calculateVerticalMovement(stroke) {
-        if (stroke.points.length < 2) return 0;
-        
-        const start = stroke.points[0];
-        const end = stroke.points[stroke.points.length - 1];
-        return (end.y - start.y) / stroke.points.length;
-    }
-
-    calculateStrokeComplexity(stroke) {
-        if (stroke.points.length < 3) return 0;
-        
-        let directionChanges = 0;
-        for (let i = 2; i < stroke.points.length; i++) {
-            const p1 = stroke.points[i - 2];
-            const p2 = stroke.points[i - 1];
-            const p3 = stroke.points[i];
-            
-            const angle1 = Math.atan2(p2.y - p1.y, p2.x - p1.x);
-            const angle2 = Math.atan2(p3.y - p2.y, p3.x - p2.x);
-            
-            if (Math.abs(angle1 - angle2) > Math.PI / 4) {
-                directionChanges++;
-            }
-        }
-        
-        return directionChanges / (stroke.points.length - 2);
-    }
-
-    analyzeSpacing() {
-        const spacingAnalysis = {
-            wordSpacing: this.analyzeWordSpacing(),
-            letterSpacing: this.analyzeLetterSpacing(),
-            lineSpacing: this.analyzeLineSpacing()
-        };
-        
-        return spacingAnalysis;
-    }
-
-    analyzeWordSpacing() {
-        const strokes = this.getStrokes();
-        const gaps = this.findGapsBetweenStrokes(strokes);
-        
-        return {
-            averageGap: gaps.length > 0 ? gaps.reduce((sum, gap) => sum + gap, 0) / gaps.length : 0,
-            gapCount: gaps.length,
-            consistency: this.calculateConsistency(gaps)
-        };
-    }
-
-    analyzeLetterSpacing() {
-        // Analyze spacing within strokes (for letters)
-        const strokes = this.getStrokes();
-        const internalGaps = [];
-        
-        strokes.forEach(stroke => {
-            if (stroke.points.length < 10) return;
-            
-            // Look for gaps within the stroke
-            for (let i = 1; i < stroke.points.length; i++) {
-                const prev = stroke.points[i - 1];
-                const curr = stroke.points[i];
-                const distance = Math.sqrt(
-                    Math.pow(curr.x - prev.x, 2) + Math.pow(curr.y - prev.y, 2)
-                );
-                
-                if (distance > 20) { // Significant gap
-                    internalGaps.push(distance);
-                }
-            }
-        });
-        
-        return {
-            averageGap: internalGaps.length > 0 ? internalGaps.reduce((sum, gap) => sum + gap, 0) / internalGaps.length : 0,
-            gapCount: internalGaps.length,
-            consistency: this.calculateConsistency(internalGaps)
-        };
-    }
-
-    analyzeLineSpacing() {
-        const strokes = this.getStrokes();
-        const lineHeights = [];
-        
-        // Group strokes by approximate Y position
-        const lines = this.groupStrokesByLine(strokes);
-        
-        for (let i = 1; i < lines.length; i++) {
-            const line1 = lines[i - 1];
-            const line2 = lines[i];
-            
-            const y1 = line1.reduce((sum, stroke) => sum + this.getStrokeCenterY(stroke), 0) / line1.length;
-            const y2 = line2.reduce((sum, stroke) => sum + this.getStrokeCenterY(stroke), 0) / line2.length;
-            
-            lineHeights.push(Math.abs(y2 - y1));
-        }
-        
-        return {
-            lineCount: lines.length,
-            averageLineHeight: lineHeights.length > 0 ? lineHeights.reduce((sum, h) => sum + h, 0) / lineHeights.length : 0,
-            consistency: this.calculateConsistency(lineHeights)
-        };
-    }
-
-    findGapsBetweenStrokes(strokes) {
-        const gaps = [];
-        
-        for (let i = 1; i < strokes.length; i++) {
-            const prevStroke = strokes[i - 1];
-            const currStroke = strokes[i];
-            
-            const prevEnd = prevStroke.points[prevStroke.points.length - 1];
-            const currStart = currStroke.points[0];
-            
-            const distance = Math.sqrt(
-                Math.pow(currStart.x - prevEnd.x, 2) + Math.pow(currStart.y - prevEnd.y, 2)
-            );
-            
-            gaps.push(distance);
-        }
-        
-        return gaps;
-    }
-
-    groupStrokesByLine(strokes) {
-        const lines = [];
-        const lineThreshold = 50; // Pixels
-        
-        strokes.forEach(stroke => {
-            const centerY = this.getStrokeCenterY(stroke);
-            let addedToLine = false;
-            
-            for (let i = 0; i < lines.length; i++) {
-                const lineCenterY = lines[i].reduce((sum, s) => sum + this.getStrokeCenterY(s), 0) / lines[i].length;
-                
-                if (Math.abs(centerY - lineCenterY) < lineThreshold) {
-                    lines[i].push(stroke);
-                    addedToLine = true;
-                    break;
-                }
-            }
-            
-            if (!addedToLine) {
-                lines.push([stroke]);
-            }
-        });
-        
-        return lines;
-    }
-
-    getStrokeCenterY(stroke) {
-        if (stroke.points.length === 0) return 0;
-        
-        const sumY = stroke.points.reduce((sum, point) => sum + point.y, 0);
-        return sumY / stroke.points.length;
-    }
-
-    detectDyslexiaPatterns() {
-        const patterns = [];
-        const letterAnalysis = this.analyzeLetters();
-        const spacingAnalysis = this.analyzeSpacing();
-        const drawingMetrics = this.analyzeDrawingMetrics();
-        
-        // Letter reversals
-        if (letterAnalysis.reversals.length > 0) {
-            patterns.push({
-                type: 'reversals',
-                severity: letterAnalysis.reversals.length > 2 ? 'moderate' : 'mild',
-                description: `${letterAnalysis.reversals.length} reversal pattern(s) detected`,
-                details: letterAnalysis.reversals.map(r => `Backward movement in stroke ${r.strokeIndex}`)
-            });
-        }
-        
-        // Letter inversions
-        if (letterAnalysis.inversions.length > 0) {
-            patterns.push({
-                type: 'inversions',
-                severity: 'moderate',
-                description: `${letterAnalysis.inversions.length} inversion pattern(s) detected`,
-                details: letterAnalysis.inversions.map(i => `Upward movement in stroke ${i.strokeIndex}`)
-            });
-        }
-        
-        // Spacing issues
-        if (spacingAnalysis.wordSpacing.consistency < 60) {
-            patterns.push({
-                type: 'spacing',
-                severity: 'mild',
-                description: 'Inconsistent spacing patterns detected',
-                details: ['Variable spacing between strokes']
-            });
-        }
-        
-        // Drawing complexity
-        if (drawingMetrics.complexity > 0.8) {
-            patterns.push({
-                type: 'complexity',
-                severity: 'mild',
-                description: 'High drawing complexity detected',
-                details: ['Complex stroke patterns may indicate formation difficulties']
-            });
-        }
-        
-        return patterns;
-    }
-
-    analyzeDrawingMetrics() {
-        const strokes = this.getStrokes();
-        
-        return {
-            totalStrokes: strokes.length,
-            drawingTime: this.calculateDrawingTime(),
-            complexity: this.calculateOverallComplexity(strokes),
-            pressureVariation: this.analyzePressureVariation(),
-            speedVariation: this.analyzeSpeedVariation(strokes)
-        };
-    }
-
-    calculateDrawingTime() {
-        if (this.drawingData.length < 2) return 0;
-        
-        const startTime = this.drawingData[0].timestamp;
-        const endTime = this.drawingData[this.drawingData.length - 1].timestamp;
-        
-        return (endTime - startTime) / 1000; // Convert to seconds
-    }
-
-    calculateOverallComplexity(strokes) {
-        if (strokes.length === 0) return 0;
-        
-        const complexities = strokes.map(stroke => this.calculateStrokeComplexity(stroke));
-        return complexities.reduce((sum, comp) => sum + comp, 0) / complexities.length;
-    }
-
-    analyzePressureVariation() {
-        // Simplified pressure analysis based on drawing speed
-        const strokes = this.getStrokes();
-        if (strokes.length < 2) return 0.5;
-        
-        const speeds = strokes.map(stroke => {
-            if (stroke.duration === 0) return 0;
-            return stroke.length / stroke.duration;
-        });
-        
-        return this.calculateConsistency(speeds) / 100;
-    }
-
-    analyzeSpeedVariation(strokes) {
-        if (strokes.length < 2) return 0.5;
-        
-        const speeds = strokes.map(stroke => {
-            if (stroke.duration === 0) return 0;
-            return stroke.length / stroke.duration;
-        });
-        
-        return this.calculateConsistency(speeds) / 100;
-    }
-
-    analyzeTextCoverage() {
-        return {
-            coverage: this.calculateTextCoverage(),
-            patternAccuracy: this.calculatePatternAccuracy(),
-            consistency: this.calculateDrawingConsistency()
-        };
-    }
-
-    displayResults(analysis) {
-        // Display accuracy score
-        this.accuracyScore.textContent = `${analysis.accuracy}%`;
-        
-        // Update score circle color based on accuracy
-        const scoreCircle = document.querySelector('.score-circle');
-        if (analysis.accuracy >= 80) {
-            scoreCircle.style.background = 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)';
-        } else if (analysis.accuracy >= 60) {
-            scoreCircle.style.background = 'linear-gradient(135deg, #f6ad55 0%, #ed8936 100%)';
-        } else {
-            scoreCircle.style.background = 'linear-gradient(135deg, #fc8181 0%, #e53e3e 100%)';
-        }
-        
-        // Display detailed analysis
-        this.displayDetailedAnalysis(analysis);
-        
-        // Display dyslexia indicators
-        this.displayDyslexiaIndicators(analysis.dyslexiaIndicators);
-    }
-
-    displayDetailedAnalysis(analysis) {
-        let html = `
-            <div class="analysis-item">
-                <strong>Drawing Analysis:</strong>
-                <ul>
-                    <li>Text Coverage: ${analysis.textCoverage.coverage.toFixed(1)}%</li>
-                    <li>Pattern Accuracy: ${analysis.textCoverage.patternAccuracy.toFixed(1)}%</li>
-                    <li>Drawing Consistency: ${analysis.textCoverage.consistency.toFixed(1)}%</li>
-                </ul>
-            </div>
-            
-            <div class="analysis-item">
-                <strong>Letter Analysis:</strong>
-                <ul>
-                    <li>Reversals: ${analysis.letterAnalysis.reversals.length}</li>
-                    <li>Inversions: ${analysis.letterAnalysis.inversions.length}</li>
-                    <li>Omissions: ${analysis.letterAnalysis.omissions.length}</li>
-                    <li>Substitutions: ${analysis.letterAnalysis.substitutions.length}</li>
-                </ul>
-            </div>
-            
-            <div class="analysis-item">
-                <strong>Drawing Metrics:</strong>
-                <ul>
-                    <li>Total Strokes: ${analysis.drawingMetrics.totalStrokes}</li>
-                    <li>Drawing Time: ${analysis.drawingMetrics.drawingTime.toFixed(1)}s</li>
-                    <li>Complexity: ${(analysis.drawingMetrics.complexity * 100).toFixed(1)}%</li>
-                    <li>Speed Consistency: ${(analysis.drawingMetrics.speedVariation * 100).toFixed(1)}%</li>
-                </ul>
-            </div>
-        `;
-        
-        this.analysisResults.innerHTML = html;
-    }
-
-    displayDyslexiaIndicators(indicators) {
-        if (indicators.length === 0) {
-            this.dyslexiaIndicators.innerHTML = `
-                <div class="indicator-item">
-                    <strong>No significant dyslexia indicators detected.</strong>
-                    <p>This is a preliminary analysis. Consult with a professional for a comprehensive assessment.</p>
-                </div>
-            `;
-            return;
-        }
-        
-        let html = '';
-        indicators.forEach(indicator => {
-            const severityClass = indicator.severity === 'mild' ? 'warning' : 'danger';
-            html += `
-                <div class="indicator-item ${severityClass}">
-                    <strong>${indicator.description}</strong>
-                    <p>Severity: ${indicator.severity}</p>
-                    <ul>
-                        ${indicator.details.map(detail => `<li>${detail}</li>`).join('')}
-                    </ul>
-                </div>
-            `;
-        });
-        
-        html += `
-            <div class="indicator-item">
-                <strong>Important Note:</strong>
-                <p>This is a preliminary analysis tool. These results should not replace professional assessment. 
-                If concerns persist, please consult with a qualified specialist.</p>
-            </div>
-        `;
-        
-        this.dyslexiaIndicators.innerHTML = html;
-    }
-
-    resetTest() {
-        // Reset all sections
-        this.testSection.style.display = 'none';
-        this.resultsSection.style.display = 'none';
-        
-        // Clear inputs and canvas
-        this.textInput.value = '';
-        this.clearCanvas();
-        
-        // Reset data
-        this.originalText = '';
-        this.drawingData = [];
-        
-        // Scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    exportResults() {
-        if (this.drawingData.length === 0) {
-            alert('No test data to export.');
-            return;
-        }
-        
-        const results = {
-            originalText: this.originalText,
-            timestamp: new Date().toISOString(),
-            drawingData: this.drawingData,
-            analysis: this.performAnalysis()
-        };
-        
-        const dataStr = JSON.stringify(results, null, 2);
-        const dataBlob = new Blob([dataStr], { type: 'application/json' });
-        
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(dataBlob);
-        link.download = `dyslexia-test-${new Date().toISOString().split('T')[0]}.json`;
-        link.click();
-    }
+/* Setup canvases with DPR scaling for crisp strokes */
+function setupCanvasScaling(canvas) {
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = CANVAS_W * dpr;
+  canvas.height = CANVAS_H * dpr;
+  canvas.style.width = CANVAS_W + 'px';
+  canvas.style.height = CANVAS_H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  return ctx;
 }
 
-// Initialize the application when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-    new DyslexiaDetectionTool();
+const drawCtx = setupCanvasScaling(drawingCanvas);
+const guideCtx = setupCanvasScaling(guideCanvas);
+
+/* Initialize drawing canvas (transparent background) */
+function initDrawingCanvas() {
+  // Clear to transparent
+  drawCtx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+  // White background is not drawn so that text underneath is visible
+}
+
+/* Draw guide text on guideCanvas (disabled visually by default;
+   kept for reference if you want to display a faint guide). */
+function drawGuideText(text) {
+  guideCtx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+  guideCtx.save();
+  guideCtx.fillStyle = 'rgba(0,0,0,0.08)';
+  const fontSize = Math.min(80, CANVAS_H * 0.28);
+  guideCtx.font = `bold ${fontSize}px "Comic Sans MS", sans-serif`;
+  guideCtx.textAlign = 'center';
+  guideCtx.textBaseline = 'middle';
+  guideCtx.fillText(text, CANVAS_W / 2, CANVAS_H / 2);
+  guideCtx.restore();
+}
+
+/* ---------------------------
+   Navigation
+   --------------------------- */
+function showStep(stepEl) {
+  [step1, step2, step3].forEach(s => s.classList.add('hidden'));
+  stepEl.classList.remove('hidden');
+}
+
+startBtn.addEventListener('click', () => {
+  const text = promptInput.value.trim();
+  if (!text) {
+    alert('Please enter a sentence or word for the child to draw.');
+    promptInput.focus();
+    return;
+  }
+  // Set up UI for drawing step
+  displayPrompt.textContent = text;
+  resultPrompt.textContent = text;
+  // Reset canvases and state
+  initDrawingCanvas();
+  drawGuideText(text);
+  // Ensure the drawing canvas overlays the prompt visually
+  showStep(step2);
 });
+
+backToStart.addEventListener('click', () => {
+  showStep(step1);
+});
+
+/* ---------------------------
+   Tools: pen / eraser / clear
+   --------------------------- */
+penBtn.addEventListener('click', () => setTool('pen'));
+eraserBtn.addEventListener('click', () => setTool('eraser'));
+clearBtn.addEventListener('click', () => {
+  if (!confirm('Clear the entire drawing?')) return;
+  drawCtx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+});
+
+sizeRange.addEventListener('input', (e) => {
+  size = Number(e.target.value);
+});
+colorPicker.addEventListener('input', (e) => {
+  color = e.target.value;
+});
+
+/* Toggle tool */
+function setTool(t) {
+  tool = t;
+  penBtn.classList.toggle('active', t === 'pen');
+  eraserBtn.classList.toggle('active', t === 'eraser');
+}
+
+/* Use pointer events for unified mouse/touch */
+drawingCanvas.addEventListener('pointerdown', (e) => {
+  drawingCanvas.setPointerCapture(e.pointerId);
+  drawing = true;
+  lastPoint = getCanvasPoint(e);
+  drawStroke(lastPoint, lastPoint, true);
+});
+drawingCanvas.addEventListener('pointermove', (e) => {
+  if (!drawing) return;
+  const p = getCanvasPoint(e);
+  drawStroke(lastPoint, p, false);
+  lastPoint = p;
+});
+window.addEventListener('pointerup', (e) => {
+  if (!drawing) return;
+  drawing = false;
+  lastPoint = null;
+});
+
+/* Translate pointer event to canvas coordinates (CSS pixels) */
+function getCanvasPoint(e) {
+  const rect = drawingCanvas.getBoundingClientRect();
+  const x = (e.clientX - rect.left) * (CANVAS_W / rect.width);
+  const y = (e.clientY - rect.top) * (CANVAS_H / rect.height);
+  return { x, y };
+}
+
+/* Draw a stroke segment from p1 to p2 */
+function drawStroke(p1, p2, isStart) {
+  drawCtx.save();
+  if (tool === 'eraser') {
+    // Eraser: use destination-out for transparent erasing
+    drawCtx.globalCompositeOperation = 'destination-out';
+    drawCtx.strokeStyle = 'rgba(0,0,0,1)';
+  } else {
+    drawCtx.globalCompositeOperation = 'source-over';
+    drawCtx.strokeStyle = color;
+  }
+  drawCtx.lineWidth = size;
+  drawCtx.lineCap = 'round';
+  drawCtx.lineJoin = 'round';
+
+  drawCtx.beginPath();
+  if (isStart) {
+    drawCtx.moveTo(p1.x, p1.y);
+    drawCtx.lineTo(p2.x + 0.001, p2.y + 0.001); // tiny line for click events
+  } else {
+    drawCtx.moveTo(p1.x, p1.y);
+    drawCtx.lineTo(p2.x, p2.y);
+  }
+  drawCtx.stroke();
+  drawCtx.closePath();
+  drawCtx.restore();
+}
+
+/* ---------------------------
+   Submit and compare images
+   --------------------------- */
+submitBtn.addEventListener('click', () => {
+  // Generate image from drawing canvas
+  const childDataURL = drawingCanvas.toDataURL('image/png');
+
+  // Create a reference canvas with the same dimensions and draw the prompt text
+  const refCanvas = document.createElement('canvas');
+  refCanvas.width = CANVAS_W;
+  refCanvas.height = CANVAS_H;
+  const refCtx = refCanvas.getContext('2d');
+
+  // White background for reference to make text solid
+  refCtx.fillStyle = '#ffffff';
+  refCtx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+
+  // Text styling similar to what a child should replicate
+  refCtx.fillStyle = '#000000';
+  const fontSize = Math.min(120, CANVAS_H * 0.28);
+  refCtx.font = `bold ${fontSize}px "Comic Sans MS", sans-serif`;
+  refCtx.textAlign = 'center';
+  refCtx.textBaseline = 'middle';
+
+  // Draw multi-line text if it's long
+  const text = displayPrompt.textContent || '';
+  wrapText(refCtx, text, CANVAS_W / 2, CANVAS_H / 2, CANVAS_W - 40, fontSize * 1.15);
+
+  // Compute similarity
+  const childImg = new Image();
+  childImg.onload = () => {
+    // Create an offscreen canvas to composite a white background + child's drawing
+    const compCanvas = document.createElement('canvas');
+    compCanvas.width = CANVAS_W;
+    compCanvas.height = CANVAS_H;
+    const compCtx = compCanvas.getContext('2d');
+
+    // White background so both images share same base
+    compCtx.fillStyle = '#ffffff';
+    compCtx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+    compCtx.drawImage(childImg, 0, 0, CANVAS_W, CANVAS_H);
+
+    // Now retrieve image data
+    const childData = compCtx.getImageData(0, 0, CANVAS_W, CANVAS_H);
+    const refData = refCtx.getImageData(0, 0, CANVAS_W, CANVAS_H);
+
+    const score = compareBinaryOverlap(childData, refData);
+    showResult(childDataURL, refCanvas.toDataURL('image/png'), score);
+  };
+  childImg.src = childDataURL;
+});
+
+/* Wrap text function for reference canvas */
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(' ');
+  let line = '';
+  const lines = [];
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + (line ? ' ' : '') + words[n];
+    const metrics = ctx.measureText(testLine);
+    if (metrics.width > maxWidth && n > 0) {
+      lines.push(line);
+      line = words[n];
+    } else {
+      line = testLine;
+    }
+  }
+  lines.push(line);
+  // center block vertically
+  const blockHeight = lines.length * lineHeight;
+  let startY = y - blockHeight / 2 + lineHeight / 2;
+  for (let i = 0; i < lines.length; i++) {
+    ctx.fillText(lines[i], x, startY + i * lineHeight);
+  }
+}
+
+/* Compare child drawing vs reference by binary overlap:
+   - Convert both images to binary masks (ink vs background) using alpha/brightness threshold
+   - Count pixels where ref is ink (referenceCount)
+   - Count pixels where both child and ref are ink (matchCount)
+   - Count union for IoU if needed
+   - Final accuracy: primarily matchCount/referenceCount, with smoothing if union differs
+*/
+function compareBinaryOverlap(childImageData, refImageData) {
+  const width = childImageData.width;
+  const height = childImageData.height;
+  const totalPixels = width * height;
+
+  let refCount = 0;
+  let matchCount = 0;
+  let unionCount = 0;
+  let childCount = 0;
+
+  for (let i = 0; i < totalPixels; i++) {
+    const idx = i * 4;
+    // Determine 'ink' presence: use alpha or darkness
+    const refR = refImageData.data[idx];
+    const refG = refImageData.data[idx + 1];
+    const refB = refImageData.data[idx + 2];
+    const refA = refImageData.data[idx + 3];
+
+    const childR = childImageData.data[idx];
+    const childG = childImageData.data[idx + 1];
+    const childB = childImageData.data[idx + 2];
+    const childA = childImageData.data[idx + 3];
+
+    // For reference: text is black on white background, so detect dark pixels
+    const refLum = (0.299 * refR + 0.587 * refG + 0.114 * refB);
+    const isRefInk = refA > 50 && refLum < 200;
+
+    // For child: detect non-white or non-transparent pixels (stroke)
+    const childLum = (0.299 * childR + 0.587 * childG + 0.114 * childB);
+    const isChildInk = childA > 50 && childLum < 250;
+
+    if (isRefInk) refCount++;
+    if (isChildInk) childCount++;
+
+    if (isRefInk || isChildInk) unionCount++;
+    if (isRefInk && isChildInk) matchCount++;
+  }
+
+  // Avoid divide-by-zero
+  if (refCount === 0) return 0;
+
+  // Primary ratio: how much of reference was covered by child's strokes
+  const coverage = matchCount / refCount;
+
+  // Secondary ratio: intersection over union (penalizes extra unrelated strokes)
+  const iou = unionCount === 0 ? 0 : matchCount / unionCount;
+
+  // Combine metrics: weighted average (70% coverage, 30% IoU)
+  const finalScore = Math.max(0, Math.min(1, coverage * 0.7 + iou * 0.3));
+
+  return Math.round(finalScore * 100);
+}
+
+/* Show results in Step 3 */
+function showResult(childDataURL, refDataURL, score) {
+  childPreview.src = childDataURL;
+  // Optionally show reference preview in hidden canvas for download
+  const refImg = new Image();
+  refImg.onload = () => {
+    // Draw reference into visible offscreen canvas (hidden by style)
+    refPreview.width = CANVAS_W;
+    refPreview.height = CANVAS_H;
+    const ctx = refPreview.getContext('2d');
+    ctx.drawImage(refImg, 0, 0, CANVAS_W, CANVAS_H);
+  };
+  refImg.src = refDataURL;
+
+  accuracyValue.textContent = `${score}%`;
+  accuracyFeedback.textContent = getFeedback(score);
+
+  showStep(step3);
+}
+
+/* Map score to feedback */
+function getFeedback(score) {
+  if (score >= 90) return 'Excellent';
+  if (score >= 70) return 'Good';
+  return 'Needs Practice';
+}
+
+/* Retry button resets to step1 with cleared input */
+retryBtn.addEventListener('click', () => {
+  promptInput.value = '';
+  showStep(step1);
+});
+
+/* Download combined result image */
+downloadBtn.addEventListener('click', () => {
+  // Create a combined canvas with prompt, drawing and score
+  const outW = 1000;
+  const outH = 600;
+  const out = document.createElement('canvas');
+  out.width = outW;
+  out.height = outH;
+  const ctx = out.getContext('2d');
+
+  // White background
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, outW, outH);
+
+  // Prompt area
+  ctx.fillStyle = '#111827';
+  ctx.font = 'bold 28px "Comic Sans MS", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(resultPrompt.textContent, outW / 2, 50);
+
+  // Child drawing
+  const childImg = new Image();
+  childImg.onload = () => {
+    ctx.drawImage(childImg, 50, 80, outW - 100, 360);
+
+    // Accuracy footer
+    ctx.fillStyle = '#111827';
+    ctx.font = 'bold 36px "Comic Sans MS", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${accuracyValue.textContent} - ${accuracyFeedback.textContent}`, outW / 2, outH - 40);
+
+    // Trigger download
+    const link = document.createElement('a');
+    link.download = 'drawing_accuracy_result.png';
+    link.href = out.toDataURL('image/png');
+    link.click();
+  };
+  childImg.src = childPreview.src;
+});
+
+/* Initialize UI defaults */
+(function init() {
+  setTool('pen');
+  initDrawingCanvas();
+  drawGuideText('Sample'); // not visible by default
+  showStep(step1);
+})();

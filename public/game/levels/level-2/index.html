@@ -1,77 +1,111 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dyslexia Detection Tool</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Drawing Accuracy Assessment Tool</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Dyslexia Detection Tool</h1>
-            <p>Help detect signs of dyslexia through text reproduction analysis</p>
-        </header>
-
-        <div class="main-content">
-            <!-- Text Input Section -->
-            <section class="input-section">
-                <h2>Step 1: Enter Text</h2>
-                <div class="input-group">
-                    <label for="textInput">Enter the text for the child to reproduce:</label>
-                    <textarea id="textInput" placeholder="Enter a short text here... (e.g., 'The quick brown fox jumps over the lazy dog')"></textarea>
-                    <button id="startTest" class="btn btn-primary">Start Test</button>
-                </div>
-            </section>
-
-            <!-- Display and Drawing Section -->
-            <section class="test-section" id="testSection" style="display: none;">
-                <h2>Step 2: Text Reproduction</h2>
-                <div class="test-container">
-                    <div class="drawing-overlay-container">
-                        <h3>Draw over the text below:</h3>
-                        <div class="text-overlay-wrapper">
-                            <div id="originalTextDisplay" class="text-display-overlay"></div>
-                            <canvas id="drawingCanvas" class="drawing-canvas-overlay"></canvas>
-                        </div>
-                        <div class="drawing-controls">
-                            <button id="clearCanvas" class="btn btn-secondary">Clear Drawing</button>
-                            <button id="analyzeText" class="btn btn-primary">Analyze</button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Results Section -->
-            <section class="results-section" id="resultsSection" style="display: none;">
-                <h2>Analysis Results</h2>
-                <div class="results-container">
-                    <div class="score-display">
-                        <h3>Accuracy Score</h3>
-                        <div class="score-circle">
-                            <span id="accuracyScore">0%</span>
-                        </div>
-                    </div>
-                    
-                    <div class="analysis-details">
-                        <h3>Detailed Analysis</h3>
-                        <div id="analysisResults" class="analysis-content"></div>
-                    </div>
-                    
-                    <div class="dyslexia-indicators">
-                        <h3>Potential Dyslexia Indicators</h3>
-                        <div id="dyslexiaIndicators" class="indicators-content"></div>
-                    </div>
-                </div>
-                
-                <div class="action-buttons">
-                    <button id="newTest" class="btn btn-primary">New Test</button>
-                    <button id="exportResults" class="btn btn-secondary">Export Results</button>
-                </div>
-            </section>
-        </div>
+  <header class="site-header">
+    <div class="header-content">
+      <h1 class="app-title">Drawing Accuracy Tool</h1>
+      <p class="app-subtitle">Assess drawing and writing accuracy through interactive drawing</p>
     </div>
+  </header>
 
-    <script src="script.js"></script>
+  <main class="container">
+    <!-- STEP 1: Text Input -->
+    <section id="step1" class="card visible">
+      <h2 class="card-title">Enter the prompt</h2>
+      <textarea id="promptInput" class="prompt-input" placeholder="Enter a sentence or word for the child to draw..." rows="5" maxlength="200"></textarea>
+      <div class="actions">
+        <button id="startBtn" class="btn primary">Start Test</button>
+      </div>
+      <p class="hint">Tip: Use short sentences or single words for younger children.</p>
+    </section>
+
+    <!-- STEP 2: Drawing -->
+    <section id="step2" class="card hidden">
+      <h2 class="card-title">Draw the prompt</h2>
+      <div class="drawing-layout">
+        <div class="prompt-area">
+          <!-- The text that will be visible under the drawing canvas -->
+          <div id="displayPrompt" class="display-prompt"></div>
+        </div>
+
+        <div class="canvas-wrap">
+          <!-- Canvas overlay: drawing happens on top (transparent) -->
+          <canvas id="drawingCanvas" class="drawing-canvas"></canvas>
+          <!-- A faint reference layer (optional visual guide disabled by default) -->
+          <canvas id="guideCanvas" class="guide-canvas" aria-hidden="true"></canvas>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="tool-group">
+          <label class="tool-label">Tool:</label>
+          <button class="btn tool active" id="penBtn" data-tool="pen">Pen</button>
+          <button class="btn tool" id="eraserBtn" data-tool="eraser">Eraser</button>
+        </div>
+
+        <div class="tool-group">
+          <label class="tool-label">Size:</label>
+          <input id="sizeRange" type="range" min="2" max="40" value="6" />
+        </div>
+
+        <div class="tool-group">
+          <label class="tool-label">Color:</label>
+          <input id="colorPicker" type="color" value="#000000" />
+        </div>
+
+        <div class="tool-group right">
+          <button id="clearBtn" class="btn">Clear Canvas</button>
+          <button id="submitBtn" class="btn primary">Submit Drawing</button>
+        </div>
+      </div>
+
+      <div class="small-note">Use phone or tablet for touch drawing. Use the eraser to fix mistakes.</div>
+      <div class="actions nav">
+        <button id="backToStart" class="btn">Change Prompt</button>
+      </div>
+    </section>
+
+    <!-- STEP 3: Result -->
+    <section id="step3" class="card hidden">
+      <h2 class="card-title">Accuracy Result</h2>
+      <div class="result-grid">
+        <div class="result-card">
+          <h3 class="result-label">Original Prompt</h3>
+          <div id="resultPrompt" class="result-prompt"></div>
+        </div>
+
+        <div class="result-card">
+          <h3 class="result-label">Child's Drawing</h3>
+          <img id="childPreview" class="preview-img" alt="Child drawing preview" />
+        </div>
+
+        <div class="result-card large">
+          <h3 class="result-label">Accuracy</h3>
+          <div class="accuracy-display">
+            <div id="accuracyValue" class="accuracy-value">0%</div>
+            <div id="accuracyFeedback" class="accuracy-feedback">—</div>
+            <canvas id="refPreview" class="ref-preview" aria-hidden="true"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="retryBtn" class="btn">Try Another</button>
+        <button id="downloadBtn" class="btn primary">Download Result Image</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <small>© Drawing Accuracy Assessment Tool — Client-side demo</small>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
