@@ -1,11 +1,11 @@
 // Simple load results function
 function loadResults() {
     console.log('=== loadResults START ===');
-    
+
     try {
         const resultsContent = document.getElementById('resultsContent');
         const studentNameDisplay = document.getElementById('studentNameDisplay');
-        
+
         if (!resultsContent || !studentNameDisplay) {
             console.error('Elements not found:', { resultsContent, studentNameDisplay });
             return;
@@ -13,16 +13,16 @@ function loadResults() {
 
         const gameResults = JSON.parse(localStorage.getItem('gameResults') || '[]');
         const filterName = localStorage.getItem('userName') || '';
-        
+
         console.log('gameResults from localStorage:', gameResults);
         console.log('filterName from localStorage:', filterName);
         console.log('gameResults length:', gameResults.length);
-        
+
         if (gameResults.length > 0) {
             console.log('First result playerName:', gameResults[0].playerName);
             console.log('Comparison: filterName === gameResults[0].playerName:', filterName === gameResults[0].playerName);
         }
-        
+
         if (filterName) {
             studentNameDisplay.textContent = `Results for: ${filterName}`;
         } else {
@@ -82,17 +82,7 @@ function loadResults() {
                 'grade56': 'Grade 5-6'
             }[result.ageGroup] || result.ageGroup;
 
-            const talentsHTML = Object.entries(result.talentScores || {})
-                .map(([key, value]) => {
-                    const displayName = getTalentDisplayName(key);
-                    return `
-                        <div class="talent-item">
-                            <div class="talent-name">${displayName}</div>
-                            <div class="talent-score">${value}</div>
-                        </div>
-                    `;
-                })
-                .join('');
+
 
             const disordersHTML = result.disorders && result.disorders.length > 0
                 ? `
@@ -125,6 +115,25 @@ function loadResults() {
                     </div>
                 `;
 
+            // Round values for display to avoid long decimals
+            const displayScore = typeof result.score === 'number' ? Math.round(result.score * 10) / 10 : result.score;
+            const displayTotal = typeof result.totalPossible === 'number' ? Math.round(result.totalPossible * 10) / 10 : result.totalPossible;
+            const displayPercentage = typeof result.percentage === 'number' ? Math.round(result.percentage) : '0';
+
+            // Round talent scores
+            const talentRows = Object.entries(result.talentScores || {}).map(([talent, score]) => {
+                const displayTalentScore = typeof score === 'number' ? Math.round(score * 10) / 10 : score;
+                return `
+                    <div class="talent-item">
+                        <div class="talent-icon">${getTalentIcon(talent)}</div>
+                        <div class="talent-info">
+                            <div class="talent-name">${formatTalentName(talent)}</div>
+                            <div class="talent-score">${displayTalentScore}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
             return `
                 <div class="result-card">
                     <div class="result-header">
@@ -134,7 +143,7 @@ function loadResults() {
                             <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.25rem;">${gradeLabel}</div>
                         </div>
                         <div class="result-score">
-                            <div class="score-value">${result.percentage}%</div>
+                            <div class="score-value">${displayPercentage}%</div>
                             <div class="score-label">Score</div>
                         </div>
                     </div>
@@ -144,7 +153,7 @@ function loadResults() {
                             <div class="detail-icon">📊</div>
                             <div class="detail-content">
                                 <div class="detail-label">Total Score</div>
-                                <div class="detail-value">${result.score}/${result.totalPossible}</div>
+                                <div class="detail-value">${displayScore}/${displayTotal}</div>
                             </div>
                         </div>
                         <div class="detail-item">
@@ -158,14 +167,14 @@ function loadResults() {
                             <div class="detail-icon">⏱️</div>
                             <div class="detail-content">
                                 <div class="detail-label">Duration</div>
-                                <div class="detail-value">~${Math.round(result.challengesCompleted * 2)} min</div>
+                                <div class="detail-value">${formatDuration(result.totalTime, result.challengesCompleted)}</div>
                             </div>
                         </div>
                     </div>
 
                     <div style="font-weight: 600; margin-bottom: 0.75rem; color: var(--text-primary);">Talent Scores</div>
                     <div class="talents-grid">
-                        ${talentsHTML}
+                        ${talentRows}
                     </div>
 
                     ${disordersHTML}
@@ -196,22 +205,100 @@ function getTalentDisplayName(talent) {
     return names[talent] || talent;
 }
 
+function getTalentIcon(talent) {
+    const icons = {
+        creativity: '🎨',
+        logic: '🧩',
+        memory: '🧠',
+        observation: '🔍',
+        problemSolving: '💡',
+        dyscalculia: '🔢',
+        dysphasia: '🗣️',
+        dysgraphia: '✏️'
+    };
+    return icons[talent] || '✨';
+}
+
+function formatTalentName(talent) {
+    const names = {
+        creativity: 'Creativity',
+        logic: 'Logic',
+        memory: 'Memory',
+        observation: 'Observation',
+        problemSolving: 'Problem Solving',
+        dyscalculia: 'Dyscalculia',
+        dysphasia: 'Dysphasia',
+        dysgraphia: 'Dysgraphia'
+    };
+    return names[talent] || talent;
+}
+
 function goBack() {
-    window.location.href = 'students.html';
+    // Try to go back in history if available
+    if (window.history.length > 1) {
+        window.history.back();
+    } else {
+        // Fallback to students page
+        window.location.href = 'students.html';
+    }
 }
 
 // Initialize on page load
 console.log('Script loaded, document.readyState:', document.readyState);
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadResults);
-} else {
-    // DOM is already loaded
-    loadResults();
+function setupLogoutButton() {
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Clear session data
+            localStorage.removeItem('consultantLoggedIn');
+            localStorage.removeItem('consultantEmail');
+            // Redirect to login
+            window.location.href = 'login.html';
+        });
+    }
 }
 
-// Also set up back button
-const backBtn = document.getElementById('backBtn');
-if (backBtn) {
-    backBtn.addEventListener('click', goBack);
+function initPage() {
+    loadResults();
+
+    // Set up back button
+    const backBtn = document.getElementById('backBtn');
+    if (backBtn) {
+        console.log('Back button found, adding listener');
+        backBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            goBack();
+        });
+    } else {
+        console.warn('Back button not found');
+    }
+
+    // Set up logout button if present
+    setupLogoutButton();
+}
+
+// Helper to format duration
+function formatDuration(ms, questionCount) {
+    if (!ms || typeof ms !== 'number') {
+        // Fallback for old records without time tracking
+        return `~${Math.round(questionCount * 2)} min`;
+    }
+
+    const seconds = Math.round(ms / 1000);
+    if (seconds < 60) {
+        return `${seconds} sec`;
+    }
+
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}min ${remainingSeconds}s`;
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPage);
+} else {
+    // DOM is already loaded
+    initPage();
 }

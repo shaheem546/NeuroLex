@@ -34,6 +34,10 @@ function getUserInfo() {
 
     const nameEl = document.getElementById('userName');
     if (nameEl) nameEl.textContent = userName;
+
+    const consultantId = localStorage.getItem('consultantId') || 'Unknown';
+    const idEl = document.getElementById('consultantIdDisplay');
+    if (idEl) idEl.textContent = consultantId;
 }
 
 // Load analytics (Dashboard side)

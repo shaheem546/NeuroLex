@@ -24,6 +24,12 @@ function persistUserSession(payload) {
   localStorage.setItem('userRole', payload.user.role);
   localStorage.setItem('userEmail', payload.user.email);
   localStorage.setItem('userName', payload.user.firstName || 'User');
+  if (payload.user.consultantId) {
+    localStorage.setItem('consultantId', payload.user.consultantId);
+  } else if (payload.user.employeeId) {
+    // Fallback for old users
+    localStorage.setItem('consultantId', payload.user.employeeId);
+  }
 }
 
 // Show success message
@@ -125,7 +131,7 @@ async function handleRegister(e) {
   const lastName = document.getElementById('lastName').value;
   const email = document.getElementById('regEmail').value;
   const department = document.getElementById('department').value;
-  const employeeId = document.getElementById('employeeId').value;
+  // const employeeId = document.getElementById('employeeId').value;
   const password = document.getElementById('regPassword').value;
   const confirmPassword = document.getElementById('confirmPassword').value;
   const submitBtn = e.target.querySelector('.btn-submit');
@@ -154,7 +160,7 @@ async function handleRegister(e) {
       lastName,
       email,
       department,
-      employeeId,
+      // employeeId,
       password,
       role: 'teacher' // Backend uses 'teacher' role for consultants
     });

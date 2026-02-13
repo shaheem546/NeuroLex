@@ -1,11 +1,13 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Drawing Accuracy Assessment Tool</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
   <header class="site-header">
     <div class="header-content">
@@ -18,7 +20,8 @@
     <!-- STEP 1: Text Input -->
     <section id="step1" class="card visible">
       <h2 class="card-title">Enter the prompt</h2>
-      <textarea id="promptInput" class="prompt-input" placeholder="Enter a sentence or word for the child to draw..." rows="5" maxlength="200"></textarea>
+      <textarea id="promptInput" class="prompt-input" placeholder="Enter a sentence or word for the child to draw..."
+        rows="5" maxlength="200"></textarea>
       <div class="actions">
         <button id="startBtn" class="btn primary">Start Test</button>
       </div>
@@ -98,6 +101,13 @@
       <div class="actions">
         <button id="retryBtn" class="btn">Try Another</button>
         <button id="downloadBtn" class="btn primary">Download Result Image</button>
+        <button id="viewProgressBtn" class="btn secondary"
+          style="background: #4caf50; color: white; margin-left: 10px;">
+          View My Progress
+        </button>
+        <button id="goHomeBtn" class="btn secondary" style="background: #2196f3; color: white; margin-left: 10px;">
+          Home
+        </button>
       </div>
     </section>
   </main>
@@ -108,4 +118,5 @@
 
   <script src="script.js"></script>
 </body>
+
 </html>

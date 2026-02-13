@@ -23,7 +23,7 @@ router.post('/register', [
   body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
   body('role').optional().isIn(['student', 'teacher']).withMessage('Role must be student or teacher'),
   body('studentId').optional().trim(),
-  body('employeeId').optional().trim(),
+  // body('employeeId').optional().trim(), // Deprecated for new registrations
   body('department').optional().trim()
 ], async (req, res) => {
   try {
@@ -37,7 +37,7 @@ router.post('/register', [
       });
     }
 
-    const { firstName, lastName, email, password, role, studentId, employeeId, department } = req.body;
+    const { firstName, lastName, email, password, role, studentId, department } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findByEmail(email);
@@ -56,10 +56,10 @@ router.post('/register', [
       });
     }
 
-    if (role === 'teacher' && (!employeeId || !department)) {
+    if (role === 'teacher' && !department) {
       return res.status(400).json({
         status: 'error',
-        message: 'Employee ID and department are required for teacher registration'
+        message: 'Department is required for teacher registration'
       });
     }
 
@@ -76,7 +76,16 @@ router.post('/register', [
     if (role === 'student') {
       userData.studentId = studentId;
     } else if (role === 'teacher') {
-      userData.employeeId = employeeId;
+      // Generate Consultant ID
+      let isUnique = false;
+      let consultantId = '';
+      while (!isUnique) {
+        const randomId = Math.floor(100000 + Math.random() * 900000); // 6 digit random number
+        consultantId = `CNS${randomId}`;
+        const existing = await User.findOne({ consultantId });
+        if (!existing) isUnique = true;
+      }
+      userData.consultantId = consultantId;
       userData.department = department;
     }
 
@@ -99,7 +108,7 @@ router.post('/register', [
 
   } catch (error) {
     console.error('Registration error:', error);
-    
+
     // Handle duplicate key errors
     if (error.code === 11000) {
       const field = Object.keys(error.keyPattern)[0];
@@ -268,6 +277,83 @@ router.post('/change-password', [
     res.status(500).json({
       status: 'error',
       message: 'Server error'
+    });
+  }
+});
+
+// @route   POST /api/auth/student-login
+// @desc    Login student using studentId and consultantId
+// @access  Public
+router.post('/student-login', [
+  body('studentId').trim().notEmpty().withMessage('Student ID is required'),
+  body('consultantId').trim().notEmpty().withMessage('Consultant ID is required')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Validation failed',
+        errors: errors.array()
+      });
+    }
+
+    const { studentId, consultantId } = req.body;
+
+    // Find the student by studentId
+    const student = await User.findOne({ studentId, role: 'student' });
+    if (!student) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Invalid Student ID'
+      });
+    }
+
+    // Verify consultant exists with the given consultantId
+    const consultant = await User.findOne({
+      $or: [{ consultantId }, { employeeId: consultantId }],
+      role: 'teacher'
+    });
+    if (!consultant) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Invalid Consultant ID'
+      });
+    }
+
+    // Check if student is active
+    if (!student.isActive) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Student account is deactivated'
+      });
+    }
+
+    // Update last active
+    student.progress.lastActive = new Date();
+    await student.save();
+
+    // Generate token for the student
+    const token = generateToken(student._id);
+
+    res.json({
+      status: 'success',
+      message: 'Student login successful',
+      token,
+      student: {
+        id: student._id,
+        name: `${student.firstName} ${student.lastName}`,
+        studentId: student.studentId,
+        grade: student.grade,
+        email: student.email
+      }
+    });
+
+  } catch (error) {
+    console.error('Student login error:', error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Server error during student login'
     });
   }
 });

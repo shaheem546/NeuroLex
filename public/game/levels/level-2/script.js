@@ -40,6 +40,8 @@ const refPreview = el('refPreview');
 
 const retryBtn = el('retryBtn');
 const downloadBtn = el('downloadBtn');
+const viewProgressBtn = el('viewProgressBtn');
+const goHomeBtn = el('goHomeBtn');
 
 /* ---------------------------
    App state
@@ -405,7 +407,23 @@ downloadBtn.addEventListener('click', () => {
     link.click();
   };
   childImg.src = childPreview.src;
+  childImg.src = childPreview.src;
 });
+
+/* Navigation Buttons */
+if (viewProgressBtn) {
+  viewProgressBtn.addEventListener('click', () => {
+    // Navigate to progress page - relative path from levels/level-2/
+    window.location.href = '../../../progress.html';
+  });
+}
+
+if (goHomeBtn) {
+  goHomeBtn.addEventListener('click', () => {
+    // Navigate to home dashboard
+    window.location.href = '../../../consultant-dashboard.html';
+  });
+}
 
 /* Initialize UI defaults */
 (function init() {

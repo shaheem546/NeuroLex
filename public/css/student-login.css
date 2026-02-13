@@ -471,14 +471,12 @@ body {
     }
 }
 
-/* Student Section Button */
-.btn-student {
+/* Back Link Button */
+.back-link {
     width: 100%;
     padding: 1rem;
     background: #eff6ff;
-    /* Light blue */
     color: #4f46e5;
-    /* Indigo */
     border: 2px solid #e0e7ff;
     border-radius: 12px;
     font-size: 1rem;
@@ -490,44 +488,17 @@ body {
     gap: 0.75rem;
     text-decoration: none;
     transition: all 0.3s ease;
-    margin-bottom: 1.5rem;
+    margin-top: 1rem;
 }
 
-.btn-student:hover {
+.back-link:hover {
     background: #e0e7ff;
     border-color: #c7d2fe;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+    text-decoration: none;
 }
 
-.btn-student i {
+.back-link i {
     font-size: 1.1rem;
-}
-
-/* Login Divider */
-.login-divider {
-    text-align: center;
-    margin: 1.5rem 0;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.login-divider::before,
-.login-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: #e5e7eb;
-}
-
-.divider-text {
-    padding: 0 1rem;
-    font-size: 0.8rem;
-    color: #9ca3af;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    background: white;
 }

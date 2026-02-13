@@ -32,7 +32,8 @@ let gameState = {
         totalDyscalculiaChallenges: 0,
         totalDysphasiaChallenges: 0,
         totalDysgraphiaChallenges: 0
-    }
+    },
+    startTime: 0 // Track when the game started
 };
 
 // Cached handlers for reading guide events
@@ -67,29 +68,173 @@ function selectPreferredVoice(voices) {
 // Grade-appropriate challenge data with questionnaires for all grades
 const challengesByAge = {
     grade12: [
-        // Grade 1-2: Super Simple Stories & Fun Activities (Q1–Q10)
-        { id: 1, title: "🐶 My Dog Spot", description: "Answer the question.", type: "dysphasia", content: "What is the dog's name?", options: ["Max", "Spot", "Buddy", "Rex"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
-        /*{ id: 2, title: "🍎 Red Apple", description: "Answer the question.", type: "dysphasia", content: "What color is the apple?", options: ["Green", "Yellow", "Red", "Blue"], correctAnswer: 2, maxScore: 15, typeLabel: "Dysphasia Support" },
-        { id: 3, title: "🌞 Sunny Day", description: "Answer the question.", type: "dysphasia", content: "What is hot and bright?", options: ["The moon", "The sun", "The snow", "The rain"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
-        { id: 4, title: "🎂 Birthday Party", description: "Answer the question.", type: "dysphasia", content: "What do we eat on birthdays?", options: ["Candy", "Cake", "Pizza", "Soup"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
-        { id: 5, title: "🚗 Fast Car", description: "Answer the question.", type: "dysphasia", content: "What has wheels and goes fast?", options: ["A ball", "A bicycle", "A car", "A shoe"], correctAnswer: 2, maxScore: 15, typeLabel: "Dysphasia Support" },
-        { id: 6, title: "🐠 Fish in Water", description: "Answer the question.", type: "dysphasia", content: "Where do fish live?", options: ["In trees", "In water", "In the sky", "In holes"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
-        { id: 7, title: "⭐ Twinkle Star", description: "Answer the question.", type: "dysphasia", content: "When do you see stars?", options: ["Morning", "Afternoon", "Night", "Morning"], correctAnswer: 2, maxScore: 15, typeLabel: "Dysphasia Support" },
-        { id: 8, title: "🍌 Yellow Banana", description: "Answer the question.", type: "dysphasia", content: "What is yellow and yummy?", options: ["Lemon", "Banana", "Carrot", "Cheese"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
-        { id: 9, title: "👟 My Shoes", description: "Answer the question.", type: "dysphasia", content: "What do you wear on your feet?", options: ["Hat", "Shoes", "Socks", "Shirt"], correctAnswer: 1, maxScore: 15, typeLabel: "Dysphasia Support" },
-        { id: 10, title: "🎨 Paint Colors", description: "Answer the question.", type: "dysphasia", content: "What do you use to draw?", options: ["Pencil", "Crayon", "Both pencil and crayon", "Book"], correctAnswer: 2, maxScore: 15, typeLabel: "Dysphasia Support" },
+        // Grade 1-2: Dysphasia (Language) - 4 Questions with images
+        {
+            id: 1,
+            title: "🐶 Puppy Play",
+            description: "Look at the picture and answer!",
+            type: "dysphasia",
+            content: "What is the puppy doing?",
+            options: ["Sleeping", "Playing with a ball", "Eating food", "Drinking water"],
+            correctAnswer: 1,
+            maxScore: 8.3,
+            typeLabel: "Language Skills",
+            mediaType: "image",
+            mediaUrl: "assets/grade12/puppy_playing.png",
+            audioNarration: true
+        },
+        {
+            id: 2,
+            title: "🌈 Rainbow Colors",
+            description: "Look at the beautiful rainbow!",
+            type: "dysphasia",
+            content: "What color comes after RED in the rainbow?",
+            options: ["Blue", "Orange", "Green", "Yellow"],
+            correctAnswer: 1,
+            maxScore: 8.3,
+            typeLabel: "Language Skills",
+            mediaType: "image",
+            mediaUrl: "assets/grade12/rainbow_colors.png",
+            audioNarration: true
+        },
+        {
+            id: 3,
+            title: "🎂 Birthday Fun",
+            description: "Look at the yummy cake!",
+            type: "dysphasia",
+            content: "What do we eat at birthday parties?",
+            options: ["Soup", "Cake", "Rice", "Eggs"],
+            correctAnswer: 1,
+            maxScore: 8.3,
+            typeLabel: "Language Skills",
+            mediaType: "image",
+            mediaUrl: "assets/grade12/birthday_cake.png",
+            audioNarration: true
+        },
+        {
+            id: 4,
+            title: "☀️ Sunny Day",
+            description: "Look at the bright sky!",
+            type: "dysphasia",
+            content: "What makes us warm during the day?",
+            options: ["The Moon", "The Sun", "Stars", "Clouds"],
+            correctAnswer: 1,
+            maxScore: 8.3,
+            typeLabel: "Language Skills",
+            mediaType: "image",
+            mediaUrl: "assets/grade12/sun_shining.png",
+            audioNarration: true
+        },
 
-        // Grade 1-2: Easy Math (Q11–Q20) - Just counting and basic addition
-        { id: 11, title: "🍎 Apples", description: "Solve the problem.", type: "dyscalculia", content: "1 + 1 = ?", options: ["1", "2", "3", "4"], correctAnswer: 1, maxScore: 15, typeLabel: "Dyscalculia Support" },
-        { id: 12, title: "🎈 Balloons", description: "Solve the problem.", type: "dyscalculia", content: "2 + 1 = ?", options: ["1", "2", "3", "4"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
-        { id: 13, title: "🌟 Stars", description: "Solve the problem.", type: "dyscalculia", content: "3 + 1 = ?", options: ["2", "3", "4", "5"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
-        { id: 14, title: "🧸 Toys", description: "Solve the problem.", type: "dyscalculia", content: "5 - 1 = ?", options: ["2", "3", "4", "5"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
-        { id: 15, title: "🎨 Crayons", description: "Solve the problem.", type: "dyscalculia", content: "4 - 2 = ?", options: ["1", "2", "3", "4"], correctAnswer: 1, maxScore: 15, typeLabel: "Dyscalculia Support" },
-        { id: 16, title: "🐦 Birds", description: "Solve the problem.", type: "dyscalculia", content: "2 + 2 = ?", options: ["2", "3", "4", "5"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
-        { id: 17, title: "🍪 Cookies", description: "Solve the problem.", type: "dyscalculia", content: "3 + 2 = ?", options: ["3", "4", "5", "6"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
-        { id: 18, title: "🎁 Presents", description: "Solve the problem.", type: "dyscalculia", content: "Sam has 2 toys. Mom gives him 1 more. How many toys?", options: ["1", "2", "3", "4"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" },
-        { id: 19, title: "🍕 Pizza Slices", description: "Solve the problem.", type: "dyscalculia", content: "There are 4 apples. 1 is eaten. How many left?", options: ["2", "3", "4", "5"], correctAnswer: 1, maxScore: 15, typeLabel: "Dyscalculia Support" },
-        */{ id: 20, title: "🎪 Fun Count", description: "Solve the problem.", type: "dyscalculia", content: "5 + 1 = ?", options: ["4", "5", "6", "7"], correctAnswer: 2, maxScore: 15, typeLabel: "Dyscalculia Support" }
+        // Grade 1-2: Dyscalculia (Math) - 4 Questions with images
+        {
+            id: 5,
+            title: "🍎 Count the Apples",
+            description: "Let's count together!",
+            type: "dyscalculia",
+            content: "How many apples can you see?",
+            options: ["2", "3", "4", "5"],
+            correctAnswer: 1,
+            maxScore: 8.3,
+            typeLabel: "Number Skills",
+            mediaType: "image",
+            mediaUrl: "assets/grade12/three_apples.png",
+            audioNarration: true
+        },
+        {
+            id: 6,
+            title: "🎈 Balloon Fun",
+            description: "Count the colorful balloons!",
+            type: "dyscalculia",
+            content: "How many balloons are there?",
+            options: ["3", "4", "5", "6"],
+            correctAnswer: 2,
+            maxScore: 8.3,
+            typeLabel: "Number Skills",
+            mediaType: "image",
+            mediaUrl: "assets/grade12/five_balloons.png",
+            audioNarration: true
+        },
+        {
+            id: 7,
+            title: "➕ Star Addition",
+            description: "Add the stars together!",
+            type: "dyscalculia",
+            content: "⭐⭐ + ⭐ = ? (2 + 1 = ?)",
+            options: ["2", "3", "4", "5"],
+            correctAnswer: 1,
+            maxScore: 8.3,
+            typeLabel: "Number Skills",
+            mediaType: "none",
+            audioNarration: true
+        },
+        {
+            id: 8,
+            title: "🧸 Toy Math",
+            description: "Count and add the toys!",
+            type: "dyscalculia",
+            content: "🧸🧸🧸 + 🧸🧸 = ? (3 + 2 = ?)",
+            options: ["4", "5", "6", "7"],
+            correctAnswer: 1,
+            maxScore: 8.3,
+            typeLabel: "Number Skills",
+            mediaType: "none",
+            audioNarration: true
+        },
+
+        // Grade 1-2: Dysgraphia (Writing/Letters) - 4 Questions
+        {
+            id: 9,
+            title: "✏️ Letter Match",
+            description: "Find the correct letter!",
+            type: "dysgraphia",
+            content: "Which letter looks like this? 🅱️",
+            options: ["D", "B", "P", "R"],
+            correctAnswer: 1,
+            maxScore: 8.3,
+            typeLabel: "Writing Skills",
+            mediaType: "none",
+            audioNarration: true
+        },
+        {
+            id: 10,
+            title: "🔤 Find the Letter",
+            description: "Look carefully at the letters!",
+            type: "dysgraphia",
+            content: "Which one is the letter 'A'?",
+            options: ["B", "A", "D", "C"],
+            correctAnswer: 1,
+            maxScore: 8.3,
+            typeLabel: "Writing Skills",
+            mediaType: "none",
+            audioNarration: true
+        },
+        {
+            id: 11,
+            title: "📝 Missing Letter",
+            description: "Complete the word!",
+            type: "dysgraphia",
+            content: "C _ T (What letter is missing?)",
+            options: ["E", "A", "I", "O"],
+            correctAnswer: 1,
+            maxScore: 8.3,
+            typeLabel: "Writing Skills",
+            mediaType: "none",
+            audioNarration: true
+        },
+        {
+            id: 12,
+            title: "🔡 First Letter",
+            description: "What letter starts the word?",
+            type: "dysgraphia",
+            content: "What letter does 'DOG' start with? 🐕",
+            options: ["B", "C", "D", "G"],
+            correctAnswer: 2,
+            maxScore: 8.3,
+            typeLabel: "Writing Skills",
+            mediaType: "none",
+            audioNarration: true
+        }
     ],
     grade34: [
         // Grade 3-4: Section 1 – Fun Stories with Simple Reading (Q1–Q10)
@@ -184,13 +329,13 @@ function initGame() {
     const urlParams = new URLSearchParams(window.location.search);
     const studentName = urlParams.get('name');
     const studentGrade = urlParams.get('grade');
-    
+
     if (studentName) {
         if (elements.playerName) {
             elements.playerName.value = decodeURIComponent(studentName);
         }
     }
-    
+
     // Auto-select grade if provided via URL parameter
     if (studentGrade && ['grade12', 'grade34', 'grade56'].includes(studentGrade)) {
         gameState.ageGroup = studentGrade;
@@ -236,9 +381,12 @@ function initGame() {
     }
     if (elements.readAloud) {
         elements.readAloud.addEventListener('click', () => {
+            console.log('Read Aloud button clicked');
             stopSpeaking();
             readActiveScreen();
         });
+    } else {
+        console.warn('Read Aloud button not found in DOM');
     }
 
     // Age group selection
@@ -277,7 +425,7 @@ function viewProgress() {
         console.log('viewProgress called');
         console.log('gameState.playerName:', gameState.playerName);
         console.log('typeof gameState.playerName:', typeof gameState.playerName);
-        
+
         // Ensure the latest player name is stored for filtering on progress page
         if (gameState.playerName && typeof gameState.playerName === 'string') {
             console.log('Setting userName to:', gameState.playerName);
@@ -350,10 +498,28 @@ function initSpeechSynthesis() {
 }
 
 // Speak text function
-async function speakText(text, rate = 0.9, pitch = 1.1) {
-    if (!('speechSynthesis' in window)) return;
+// Speak text function
+async function speakText(text, rate = 0.9, pitch = 1.1, source = 'manual') {
+    console.log(`speakText called with source: ${source}, text length: ${text?.length}`);
+
+    if (!('speechSynthesis' in window)) {
+        console.warn('speechSynthesis not supported in window');
+        return;
+    }
+
     const ready = await initSpeechSynthesis();
-    if (!ready || !gameState.speechSynthesis) return;
+    console.log(`Speech synthesis ready: ${ready}`);
+    if (!ready || !gameState.speechSynthesis) {
+        console.warn('Speech synthesis failed to initialize');
+        return;
+    }
+
+    // Strict check for reading guide race condition
+    if (source === 'guide' && !gameState.accessibility.readingGuide) {
+        console.log('Aborting speech: Reading guide is disabled');
+        return;
+    }
+
     stopSpeaking();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = rate;
@@ -379,15 +545,25 @@ async function speakText(text, rate = 0.9, pitch = 1.1) {
 
 function stopSpeaking() {
     if (gameState.speechSynthesis) {
+        // Cancel any pending speech
         gameState.speechSynthesis.cancel();
+
+        // Resume to ensure cancel works (Chrome bug workaround)
+        if (gameState.speechSynthesis.paused) {
+            gameState.speechSynthesis.resume();
+            gameState.speechSynthesis.cancel();
+        }
     }
     currentUtterance = null;
 }
 
 function readActiveScreen() {
     const activeScreen = document.querySelector('.screen.active');
+    console.log(`readActiveScreen called. Active screen: ${activeScreen?.id}`);
+
     if (!activeScreen) return;
     let textToSpeak = '';
+
     if (activeScreen.id === 'game-screen') {
         const challenge = gameState.challenges[gameState.currentChallenge];
         if (challenge) {
@@ -402,9 +578,12 @@ function readActiveScreen() {
     } else {
         textToSpeak = activeScreen.innerText || '';
     }
+
+    console.log(`Extracted text to speak: ${textToSpeak ? textToSpeak.substring(0, 50) + '...' : 'None'}`);
+
     textToSpeak = (textToSpeak || '').replace(/\s+/g, ' ').trim();
     if (textToSpeak) {
-        speakText(textToSpeak, 0.9, 1);
+        speakText(textToSpeak, 0.9, 1, 'manual');
     }
 }
 
@@ -490,7 +669,7 @@ function toggleReadingGuide() {
     if (gameState.accessibility.readingGuide && gameState.currentChallenge < gameState.challenges.length) {
         const challenge = gameState.challenges[gameState.currentChallenge];
         const textToSpeak = `${challenge.title}. ${challenge.description}. ${challenge.content}`;
-        speakText(textToSpeak, 0.9, 1.1);
+        speakText(textToSpeak, 0.9, 1.1, 'guide');
 
         // Enable reading guide line with focus only (no mouse tracking)
         if (!readingGuideFocusHandler) {
@@ -567,6 +746,7 @@ function startGame() {
         return;
     }
 
+    gameState.startTime = Date.now(); // Start the timer
     gameState.playerName = playerName;
     gameState.currentChallenge = 0;
     gameState.score = 0;
@@ -646,7 +826,34 @@ function displayChallenge() {
 
     elements.challengeTitle.textContent = challenge.title;
     elements.challengeDescription.textContent = challenge.description;
-    elements.challengeContent.innerHTML = challenge.content;
+
+    // Build content with media if available
+    let contentHTML = '';
+
+    // Add image/video media if available
+    if (challenge.mediaType === 'image' && challenge.mediaUrl) {
+        contentHTML += `
+            <div class="challenge-media" style="margin-bottom: 20px; text-align: center;">
+                <img src="${challenge.mediaUrl}" alt="${challenge.title}" 
+                    style="max-width: 100%; max-height: 250px; border-radius: 20px; 
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.15); border: 4px solid #fbbf24;">
+            </div>
+        `;
+    } else if (challenge.mediaType === 'video' && challenge.mediaUrl) {
+        contentHTML += `
+            <div class="challenge-media" style="margin-bottom: 20px; text-align: center;">
+                <video src="${challenge.mediaUrl}" autoplay loop muted 
+                    style="max-width: 100%; max-height: 250px; border-radius: 20px; 
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                </video>
+            </div>
+        `;
+    }
+
+    // Add the question content with larger, kid-friendly text
+    contentHTML += `<p style="font-size: 1.4rem; font-weight: 600; color: var(--text-dark); margin: 0;">${challenge.content}</p>`;
+
+    elements.challengeContent.innerHTML = contentHTML;
     elements.challengeType.textContent = challenge.typeLabel;
 
     // Clear previous options
@@ -886,26 +1093,30 @@ function assessLearningDisorders() {
 
 // Show Results
 function showResults() {
-    const totalPossible = gameState.challenges.length * 15; // Average score across new difficulties
-    const percentage = Math.round((gameState.score / totalPossible) * 100);
+    // Calculate totalPossible from actual question maxScores
+    const totalPossible = gameState.challenges.reduce((sum, c) => sum + (c.maxScore || 15), 0);
+    // Round score to 1 decimal place
+    const roundedScore = Math.round(gameState.score * 10) / 10;
+    const roundedTotal = Math.round(totalPossible * 10) / 10;
+    const percentage = Math.round((roundedScore / roundedTotal) * 100);
 
     // Create celebration effect
     createCelebration();
 
     // Don't display detailed results on results screen - only show reward message
     // All results are saved to localStorage and will be shown in progress.html
-    
+
     // Get learning disorder assessment for saving
     const disorders = assessLearningDisorders();
 
     // Save game results automatically
-    saveGameResults(totalPossible, percentage, disorders);
+    saveGameResults(roundedTotal, percentage, disorders, roundedScore);
 
     showScreen('results-screen');
 
     // Speak results if reading guide is active
     if (gameState.accessibility.readingGuide) {
-        let resultsText = `Congratulations! You completed your learning adventure with a score of ${gameState.score} out of ${totalPossible}. That's ${percentage} percent!`;
+        let resultsText = `Congratulations! You completed your learning adventure with a score of ${roundedScore} out of ${roundedTotal}. That's ${percentage} percent!`;
 
         if (disorders.length > 0) {
             resultsText += ` Based on your performance, you may benefit from additional support in ${disorders.length} area${disorders.length > 1 ? 's' : ''}. Please consult with an educational specialist for a comprehensive assessment.`;
@@ -916,18 +1127,25 @@ function showResults() {
 }
 
 // Save game results to localStorage
-function saveGameResults(totalPossible, percentage, disorders) {
+function saveGameResults(totalPossible, percentage, disorders, roundedScore) {
+    // Round all talent scores to 1 decimal
+    const roundedTalentScores = {};
+    for (const [key, value] of Object.entries(gameState.talentScores)) {
+        roundedTalentScores[key] = Math.round(value * 10) / 10;
+    }
+
     const gameResult = {
         id: Date.now(),
         date: new Date().toISOString(),
         playerName: gameState.playerName,
         ageGroup: gameState.ageGroup,
-        score: gameState.score,
+        score: roundedScore !== undefined ? roundedScore : Math.round(gameState.score * 10) / 10,
         totalPossible: totalPossible,
         percentage: percentage,
-        talentScores: { ...gameState.talentScores },
+        talentScores: roundedTalentScores,
         disorders: disorders,
         challengesCompleted: gameState.challenges.length,
+        totalTime: Date.now() - (gameState.startTime || Date.now()), // Calculate total time in ms
         accessibility: { ...gameState.accessibility }
     };
 

@@ -56,10 +56,16 @@ const userSchema = new mongoose.Schema({
     trim: true
   },
   // Teacher specific fields
-  employeeId: {
+  consultantId: {
     type: String,
     sparse: true,
     unique: true
+  },
+  employeeId: {
+    type: String,
+    sparse: true,
+    unique: true,
+    required: false
   },
   department: {
     type: String,
