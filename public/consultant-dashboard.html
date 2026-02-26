@@ -17,6 +17,7 @@
 
     <!-- External Stylesheets -->
     <link rel="stylesheet" href="css/consultant.css">
+    <link rel="stylesheet" href="css/students.css">
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -870,63 +871,132 @@
 
     <!-- Add/Edit Student Modal -->
     <div class="modal-overlay" id="studentModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title" id="modalTitle">Add New Student</h3>
-                <button class="modal-close" id="closeModal">&times;</button>
+        <div class="stu-modal">
+
+            <!-- Gradient Banner -->
+            <div class="stu-modal-banner">
+                <div class="stu-modal-banner-art">
+                    <div class="stu-modal-banner-circle c1"></div>
+                    <div class="stu-modal-banner-circle c2"></div>
+                    <div class="stu-modal-banner-circle c3"></div>
+                </div>
+                <div class="stu-modal-banner-icon">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+                <div class="stu-modal-banner-text">
+                    <h3 id="modalTitle">Add New Student</h3>
+                    <p>Fill in the details below to enroll a student</p>
+                </div>
+                <button class="stu-modal-close" id="closeModal">&times;</button>
             </div>
-            <form id="studentForm">
+
+            <!-- Form -->
+            <form id="studentForm" class="stu-modal-body">
                 <input type="hidden" id="studentIdHidden">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="firstName">First Name *</label>
-                        <input type="text" id="firstName" placeholder="Enter first name" required>
+
+                <!-- ── Student Information ── -->
+                <div class="stu-form-section">
+                    <div class="stu-section-label">
+                        <span class="stu-section-dot purple"></span>
+                        Student Information
                     </div>
-                    <div class="form-group">
-                        <label for="lastName">Last Name *</label>
-                        <input type="text" id="lastName" placeholder="Enter last name" required>
+
+                    <div class="stu-form-row">
+                        <div class="stu-form-group">
+                            <label for="firstName">First Name <span class="req">*</span></label>
+                            <div class="stu-input-box">
+                                <i class="fas fa-user"></i>
+                                <input type="text" id="firstName" placeholder="Enter first name" required>
+                            </div>
+                        </div>
+                        <div class="stu-form-group">
+                            <label for="lastName">Last Name <span class="req">*</span></label>
+                            <div class="stu-input-box">
+                                <i class="fas fa-user"></i>
+                                <input type="text" id="lastName" placeholder="Enter last name" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stu-form-group">
+                        <label for="email">Email Address <span class="req">*</span></label>
+                        <div class="stu-input-box">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="email" placeholder="student@email.com" required>
+                        </div>
+                    </div>
+
+                    <div class="stu-form-group">
+                        <label for="dateOfBirth">Date of Birth</label>
+                        <div class="stu-input-box">
+                            <i class="fas fa-calendar-alt"></i>
+                            <input type="date" id="dateOfBirth" placeholder="Select date of birth">
+                        </div>
+                    </div>
+
+                    <div class="stu-form-row">
+                        <div class="stu-form-group">
+                            <label for="studentIdInput">Student ID <span class="req">*</span></label>
+                            <div class="stu-input-box">
+                                <i class="fas fa-id-badge"></i>
+                                <input type="text" id="studentIdInput" placeholder="e.g. STU001" required>
+                            </div>
+                        </div>
+                        <div class="stu-form-group">
+                            <label for="grade">Grade / Class</label>
+                            <div class="stu-input-box">
+                                <i class="fas fa-school"></i>
+                                <select id="grade" required>
+                                    <option value="">Select Grade</option>
+                                    <option value="1-2">Grade 1, 2</option>
+                                    <option value="3-4">Grade 3, 4</option>
+                                    <option value="5-6">Grade 5, 6</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="email">Email Address *</label>
-                    <input type="email" id="email" placeholder="student@email.com" required>
+
+                <!-- ── Parent / Guardian ── -->
+                <div class="stu-section-divider">
+                    <span>Parent / Guardian Information</span>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="studentIdInput">Student ID *</label>
-                        <input type="text" id="studentIdInput" placeholder="STU001" required>
+
+                <div class="stu-form-section">
+                    <div class="stu-form-row">
+                        <div class="stu-form-group">
+                            <label for="parentName">Parent Name <span class="req">*</span></label>
+                            <div class="stu-input-box">
+                                <i class="fas fa-user-tie"></i>
+                                <input type="text" id="parentName" placeholder="Full name" required>
+                            </div>
+                        </div>
+                        <div class="stu-form-group">
+                            <label for="parentPhone">Phone Number <span class="req">*</span></label>
+                            <div class="stu-input-box">
+                                <i class="fas fa-phone"></i>
+                                <input type="tel" id="parentPhone" placeholder="+1 (555) 000-0000" required>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="grade">Grade/Class *</label>
-                        <select id="grade" required>
-                            <option value="">Select Grade</option>
-                            <option value="1-2">Grade 1, 2</option>
-                            <option value="3-4">Grade 3, 4</option>
-                            <option value="5-6">Grade 5, 6</option>
-                        </select>
+
+                    <div class="stu-form-group">
+                        <label for="parentAddress">Home Address <span class="req">*</span></label>
+                        <div class="stu-input-box stu-textarea-box">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <textarea id="parentAddress" placeholder="Full postal address" rows="3" required></textarea>
+                        </div>
                     </div>
                 </div>
-                <div class="form-divider" style="margin: 1.5rem 0 1rem; border-top: 1px solid #eee; padding-top: 1rem;">
-                    <h4 style="font-size: 0.9rem; color: #6b7280; font-weight: 600;">Parent / Guardian Information</h4>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="parentName">Parent Name *</label>
-                        <input type="text" id="parentName" placeholder="Full name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="parentPhone">Parent Phone *</label>
-                        <input type="tel" id="parentPhone" placeholder="+1..." required>
-                    </div>
-                </div>
-                <div class="form-group" style="margin-top: 1rem;">
-                    <label for="parentAddress">Parent Address *</label>
-                    <textarea id="parentAddress" placeholder="Full postal address" required
-                        style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 10px; font-family: inherit; font-size: 0.9rem; resize: vertical; min-height: 80px;"></textarea>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-cancel" id="cancelModal">Cancel</button>
-                    <button type="submit" class="btn-submit" id="submitBtn">Add Student</button>
+
+                <!-- Footer -->
+                <div class="stu-modal-footer">
+                    <button type="button" class="stu-btn-cancel" id="cancelModal">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="stu-btn-submit" id="submitBtn">
+                        <i class="fas fa-user-plus"></i> Add Student
+                    </button>
                 </div>
             </form>
         </div>

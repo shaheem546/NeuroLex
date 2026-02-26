@@ -102,7 +102,7 @@
               <input type="checkbox" id="rememberMe">
               <span>Remember me</span>
             </label>
-            <a href="#" class="forgot-link">Forgot password?</a>
+            <a href="#" class="forgot-link" id="forgotPasswordLink">Forgot password?</a>
           </div>
 
           <button type="submit" class="btn-submit">
@@ -150,10 +150,10 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="department">Department</label>
+              <label for="consultantPhone">Consultant Phone No.</label>
               <div class="input-wrapper">
-                <i class="fas fa-building"></i>
-                <input type="text" id="department" placeholder="Special Education" required>
+                <i class="fas fa-phone"></i>
+                <input type="tel" id="consultantPhone" placeholder="+91 98765 43210" required>
               </div>
             </div>
 
@@ -177,8 +177,17 @@
               <input type="password" id="confirmPassword" placeholder="Confirm password" required>
               <button type="button" class="toggle-password" data-target="confirmPassword">
                 <i class="fas fa-eye"></i>
-              </button>
             </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 0.25rem;">
+            <label class="checkbox-label terms-checkbox">
+              <input type="checkbox" id="agreeTerms" required>
+              <span>I agree to the <a href="#" id="termsLink"
+                  style="color: #7c3aed; font-weight: 600; text-decoration: underline;">Terms & Conditions</a> and <a
+                  href="#" id="privacyLink"
+                  style="color: #7c3aed; font-weight: 600; text-decoration: underline;">Privacy Policy</a></span>
+            </label>
           </div>
 
           <button type="submit" class="btn-submit">
@@ -202,7 +211,402 @@
     </div>
   </div>
 
+  <!-- Forgot Password Modal -->
+  <div class="legal-modal-overlay" id="forgotModal">
+    <div class="legal-modal" style="max-width:440px;">
+      <div class="legal-modal-header">
+        <h2><i class="fas fa-key"></i> Reset Password</h2>
+        <button class="legal-modal-close" data-close="forgotModal"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="legal-modal-body" style="text-align:center;">
+        <!-- Step 1: Email Input -->
+        <div id="forgotStep1">
+          <div
+            style="width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(167,139,250,.2));display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;font-size:1.8rem;color:#7c3aed;">
+            <i class="fas fa-envelope-open-text"></i>
+          </div>
+          <h3 style="font-size:1.15rem;font-weight:700;color:#1a1d29;margin:0 0 .4rem;">Find your account</h3>
+          <p style="font-size:.88rem;color:#6b7280;margin:0 0 1.5rem;line-height:1.5;">Enter the email address
+            associated with your account to reset your password.</p>
+          <div style="text-align:left;margin-bottom:1rem;">
+            <label style="font-size:.85rem;font-weight:600;color:#374151;display:block;margin-bottom:.35rem;">Email
+              Address</label>
+            <div class="input-wrapper"
+              style="border:1.5px solid #e5e7eb;border-radius:12px;padding:0;overflow:hidden;display:flex;align-items:center;background:#fafbff;">
+              <i class="fas fa-envelope" style="padding:0 0 0 1rem;color:#9ca3af;font-size:.9rem;"></i>
+              <input type="email" id="forgotEmail" placeholder="you@example.com" required
+                style="border:none;outline:none;padding:.75rem 1rem;flex:1;font-size:.92rem;background:transparent;font-family:inherit;color:#1a1d29;">
+            </div>
+          </div>
+          <p id="forgotError" style="display:none;color:#ef4444;font-size:.82rem;margin:0 0 .75rem;text-align:left;">
+          </p>
+          <button id="forgotSubmitBtn"
+            style="width:100%;padding:.8rem;border:none;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#4c1d95);color:white;font-size:.95rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:.5rem;">
+            <span>Send Reset Link</span>
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- Step 2: Success -->
+        <div id="forgotStep2" style="display:none;">
+          <div
+            style="width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,rgba(34,197,94,.12),rgba(74,222,128,.2));display:flex;align-items:center;justify-content:center;margin:0 auto 1.25rem;font-size:2rem;color:#22c55e;">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <h3 style="font-size:1.15rem;font-weight:700;color:#1a1d29;margin:0 0 .4rem;">Check your email</h3>
+          <p id="forgotSuccessMsg" style="font-size:.88rem;color:#6b7280;margin:0 0 1.5rem;line-height:1.5;">We've sent
+            a password reset link to your email address. Please check your inbox and follow the instructions.</p>
+          <button id="forgotDoneBtn"
+            style="width:100%;padding:.8rem;border:none;border-radius:12px;background:linear-gradient(135deg,#7c3aed,#4c1d95);color:white;font-size:.95rem;font-weight:600;cursor:pointer;font-family:inherit;">
+            Back to Sign In
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Terms & Conditions Modal -->
+  <div class="legal-modal-overlay" id="termsModal">
+    <div class="legal-modal">
+      <div class="legal-modal-header">
+        <h2><i class="fas fa-file-contract"></i> Terms & Conditions</h2>
+        <button class="legal-modal-close" data-close="termsModal"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="legal-modal-body">
+        <p class="legal-updated">Last updated: February 2026</p>
+
+        <h3>1. Acceptance of Terms</h3>
+        <p>By accessing and using the NeuroLex Dyslexia Detection Platform ("Platform"), you agree to be bound by these
+          Terms & Conditions. If you do not agree to these terms, please do not use the Platform.</p>
+
+        <h3>2. Description of Service</h3>
+        <p>NeuroLex provides an AI-powered dyslexia screening and learning support platform designed for educational
+          consultants. The Platform enables consultants to manage student profiles, conduct assessments, track progress,
+          and access resources related to dyslexia detection and intervention.</p>
+
+        <h3>3. User Accounts</h3>
+        <p>To use the Platform, you must register for an account and provide accurate, complete, and current
+          information. You are responsible for maintaining the confidentiality of your account credentials and for all
+          activities that occur under your account.</p>
+        <ul>
+          <li>You must be at least 18 years of age to create an account.</li>
+          <li>You must be a qualified educational consultant or professional.</li>
+          <li>You are responsible for securing your login credentials.</li>
+          <li>You must notify us immediately of any unauthorized access.</li>
+        </ul>
+
+        <h3>4. Acceptable Use</h3>
+        <p>You agree to use the Platform solely for lawful purposes related to educational consultation and dyslexia
+          screening. You shall not:</p>
+        <ul>
+          <li>Use the Platform for any illegal or unauthorized purpose.</li>
+          <li>Share student data with unauthorized third parties.</li>
+          <li>Attempt to gain unauthorized access to the Platform's systems.</li>
+          <li>Upload malicious code, viruses, or harmful content.</li>
+          <li>Use the Platform to harass, abuse, or harm others.</li>
+        </ul>
+
+        <h3>5. Student Data & Responsibility</h3>
+        <p>As a consultant, you are responsible for obtaining appropriate consent from parents or guardians before
+          entering student information into the Platform. You must comply with all applicable data protection
+          regulations including but not limited to COPPA, FERPA, and local privacy laws.</p>
+
+        <h3>6. Intellectual Property</h3>
+        <p>All content, features, and functionality of the Platform — including text, graphics, logos, icons, software,
+          and assessments — are owned by NeuroLex and are protected by copyright, trademark, and other intellectual
+          property laws.</p>
+
+        <h3>7. Assessment Disclaimer</h3>
+        <p>The screening tools provided on this Platform are for educational screening purposes only. They do not
+          constitute a clinical diagnosis. Results should be interpreted by qualified professionals and supplemented
+          with comprehensive clinical evaluation when necessary.</p>
+
+        <h3>8. Limitation of Liability</h3>
+        <p>NeuroLex shall not be liable for any indirect, incidental, special, consequential, or punitive damages
+          arising out of or relating to your use of the Platform. Our total liability shall not exceed the amount paid
+          by you, if any, for accessing the Platform.</p>
+
+        <h3>9. Termination</h3>
+        <p>We reserve the right to suspend or terminate your account at our discretion, without notice, for conduct that
+          we believe violates these Terms or is harmful to other users, us, or third parties.</p>
+
+        <h3>10. Governing Law</h3>
+        <p>These Terms shall be governed by and construed in accordance with the laws of India, without regard to its
+          conflict of law provisions.</p>
+
+        <h3>11. Changes to Terms</h3>
+        <p>We may modify these Terms at any time. Continued use of the Platform after modifications constitutes
+          acceptance of the updated Terms. We will notify registered users of significant changes via email.</p>
+
+        <h3>12. Contact Us</h3>
+        <p>If you have questions about these Terms, please contact us at <strong>legal@neurolex.com</strong>.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Privacy Policy Modal -->
+  <div class="legal-modal-overlay" id="privacyModal">
+    <div class="legal-modal">
+      <div class="legal-modal-header">
+        <h2><i class="fas fa-shield-alt"></i> Privacy Policy</h2>
+        <button class="legal-modal-close" data-close="privacyModal"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="legal-modal-body">
+        <p class="legal-updated">Last updated: February 2026</p>
+
+        <h3>1. Information We Collect</h3>
+        <p>We collect the following types of information when you use the NeuroLex Platform:</p>
+        <ul>
+          <li><strong>Account Information:</strong> Name, email address, phone number, and consultant credentials.</li>
+          <li><strong>Student Data:</strong> Student names, grades, assessment results, learning profiles, and progress
+            data entered by consultants.</li>
+          <li><strong>Usage Data:</strong> Log data, browser type, access times, pages viewed, and features used.</li>
+          <li><strong>Device Information:</strong> Device type, operating system, and browser version.</li>
+        </ul>
+
+        <h3>2. How We Use Your Information</h3>
+        <p>We use collected information to:</p>
+        <ul>
+          <li>Provide, maintain, and improve the Platform's services.</li>
+          <li>Process and manage student assessments and progress tracking.</li>
+          <li>Communicate with you about your account and Platform updates.</li>
+          <li>Ensure the security and integrity of our systems.</li>
+          <li>Comply with legal obligations and enforce our terms.</li>
+        </ul>
+
+        <h3>3. Data Storage & Security</h3>
+        <p>We implement industry-standard security measures to protect your data:</p>
+        <ul>
+          <li>All passwords are encrypted using bcrypt hashing algorithm.</li>
+          <li>Data is transmitted over encrypted HTTPS connections.</li>
+          <li>Access to student data is restricted to the assigned consultant.</li>
+          <li>Regular security audits and vulnerability assessments are conducted.</li>
+        </ul>
+
+        <h3>4. Data Sharing</h3>
+        <p>We do not sell, trade, or share your personal or student data with third parties except in the following
+          circumstances:</p>
+        <ul>
+          <li>With your explicit consent.</li>
+          <li>To comply with legal obligations, court orders, or government requests.</li>
+          <li>To protect the rights, property, or safety of NeuroLex, our users, or the public.</li>
+          <li>With service providers who assist in Platform operations (bound by confidentiality agreements).</li>
+        </ul>
+
+        <h3>5. Children's Privacy</h3>
+        <p>The Platform handles data of minors as entered by authorized consultants. We rely on consultants to obtain
+          proper parental consent before entering student information. We do not knowingly collect personal information
+          directly from children under 13.</p>
+
+        <h3>6. Your Rights</h3>
+        <p>You have the right to:</p>
+        <ul>
+          <li><strong>Access:</strong> Request a copy of your personal data.</li>
+          <li><strong>Correction:</strong> Update or correct inaccurate data.</li>
+          <li><strong>Deletion:</strong> Request deletion of your account and associated data.</li>
+          <li><strong>Export:</strong> Download your data in JSON or CSV format via Settings.</li>
+          <li><strong>Opt-out:</strong> Control data sharing preferences in your Settings.</li>
+        </ul>
+
+        <h3>7. Cookies & Local Storage</h3>
+        <p>We use browser local storage to save your authentication session, appearance preferences (theme, font size),
+          and notification settings. No third-party tracking cookies are used.</p>
+
+        <h3>8. Data Retention</h3>
+        <p>We retain your account data for as long as your account is active. If you delete your account, your data will
+          be deactivated and retained for 30 days before permanent deletion, allowing for potential account recovery.
+        </p>
+
+        <h3>9. Changes to This Policy</h3>
+        <p>We may update this Privacy Policy periodically. We will notify you of material changes via email or a
+          prominent notice on the Platform. Your continued use after changes constitutes acceptance.</p>
+
+        <h3>10. Contact Us</h3>
+        <p>For privacy-related inquiries, contact our Data Protection Officer at <strong>privacy@neurolex.com</strong>.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* ---- Legal Modal Overlay ---- */
+    .legal-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(6px);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      animation: legalFadeIn 0.25s ease;
+    }
+
+    .legal-modal-overlay.show {
+      display: flex;
+    }
+
+    @keyframes legalFadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    /* ---- Modal Box ---- */
+    .legal-modal {
+      background: white;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 640px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+      animation: legalSlideUp 0.3s ease;
+      overflow: hidden;
+    }
+
+    @keyframes legalSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ---- Modal Header ---- */
+    .legal-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid #f3f4f6;
+      flex-shrink: 0;
+    }
+
+    .legal-modal-header h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #1a1d29;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin: 0;
+    }
+
+    .legal-modal-header h2 i {
+      color: #7c3aed;
+    }
+
+    .legal-modal-close {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: none;
+      background: #f3f4f6;
+      color: #6b7280;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .legal-modal-close:hover {
+      background: #ef4444;
+      color: white;
+    }
+
+    /* ---- Modal Body ---- */
+    .legal-modal-body {
+      padding: 1.5rem 2rem 2rem;
+      overflow-y: auto;
+      font-size: 0.9rem;
+      color: #374151;
+      line-height: 1.7;
+    }
+
+    .legal-modal-body .legal-updated {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-bottom: 1.25rem;
+      font-style: italic;
+    }
+
+    .legal-modal-body h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #1a1d29;
+      margin: 1.5rem 0 0.5rem;
+    }
+
+    .legal-modal-body h3:first-of-type {
+      margin-top: 0;
+    }
+
+    .legal-modal-body p {
+      margin: 0 0 0.75rem;
+    }
+
+    .legal-modal-body ul {
+      margin: 0.5rem 0 1rem 1.25rem;
+      padding: 0;
+    }
+
+    .legal-modal-body ul li {
+      margin-bottom: 0.4rem;
+      padding-left: 0.25rem;
+    }
+
+    .legal-modal-body strong {
+      color: #1a1d29;
+    }
+
+    /* Scrollbar */
+    .legal-modal-body::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .legal-modal-body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .legal-modal-body::-webkit-scrollbar-thumb {
+      background: #d1d5db;
+      border-radius: 3px;
+    }
+
+    @media (max-width: 640px) {
+      .legal-modal-overlay {
+        padding: 1rem;
+      }
+
+      .legal-modal {
+        max-height: 90vh;
+      }
+
+      .legal-modal-header {
+        padding: 1.25rem 1.5rem;
+      }
+
+      .legal-modal-body {
+        padding: 1.25rem 1.5rem;
+      }
+    }
+  </style>
+
   <script src="js/login.js"></script>
+  <script src="js/modals.js"></script>
 </body>
 
 </html>

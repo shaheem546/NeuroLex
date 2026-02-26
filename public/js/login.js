@@ -142,7 +142,7 @@ async function handleRegister(e) {
   const firstName = document.getElementById('firstName').value;
   const lastName = document.getElementById('lastName').value;
   const email = document.getElementById('regEmail').value;
-  const department = document.getElementById('department').value;
+  const consultantPhone = document.getElementById('consultantPhone').value;
   // const employeeId = document.getElementById('employeeId').value;
   const password = document.getElementById('regPassword').value;
   const confirmPassword = document.getElementById('confirmPassword').value;
@@ -164,6 +164,13 @@ async function handleRegister(e) {
     return;
   }
 
+  // Terms & Conditions check
+  const agreeTerms = document.getElementById('agreeTerms');
+  if (agreeTerms && !agreeTerms.checked) {
+    alert('You must agree to the Terms & Conditions and Privacy Policy to create an account.');
+    return;
+  }
+
   submitBtn.classList.add('loading');
   const span = submitBtn.querySelector('span');
   const originalText = span.textContent;
@@ -177,7 +184,7 @@ async function handleRegister(e) {
       firstName,
       lastName,
       email,
-      department,
+      consultantPhone,
       // employeeId,
       password,
       role: 'teacher' // Backend uses 'teacher' role for consultants

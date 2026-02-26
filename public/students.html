@@ -256,6 +256,14 @@
                         </div>
                     </div>
 
+                    <div class="stu-form-group">
+                        <label for="dateOfBirth">Date of Birth</label>
+                        <div class="stu-input-box">
+                            <i class="fas fa-calendar-alt"></i>
+                            <input type="date" id="dateOfBirth" placeholder="Select date of birth">
+                        </div>
+                    </div>
+
                     <div class="stu-form-row">
                         <div class="stu-form-group">
                             <label for="studentIdInput">Student ID <span class="req">*</span></label>
@@ -268,49 +276,17 @@
                             <label for="grade">Grade / Class</label>
                             <div class="stu-input-box">
                                 <i class="fas fa-school"></i>
-                                <select id="grade">
+                                <select id="grade" required>
                                     <option value="">Select Grade</option>
-                                    <option value="Grade 1">Grade 1</option>
-                                    <option value="Grade 2">Grade 2</option>
-                                    <option value="Grade 3">Grade 3</option>
-                                    <option value="Grade 4">Grade 4</option>
-                                    <option value="Grade 5">Grade 5</option>
-                                    <option value="Grade 6">Grade 6</option>
-                                    <option value="Grade 7">Grade 7</option>
-                                    <option value="Grade 8">Grade 8</option>
-                                    <option value="Grade 9">Grade 9</option>
-                                    <option value="Grade 10">Grade 10</option>
+                                    <option value="1-2">Grade 1, 2</option>
+                                    <option value="3-4">Grade 3, 4</option>
+                                    <option value="5-6">Grade 5, 6</option>
                                 </select>
                             </div>
                         </div>
                     </div>
 
-                    <div class="stu-form-row">
-                        <div class="stu-form-group">
-                            <label for="dyslexiaType">Dyslexia Type</label>
-                            <div class="stu-input-box">
-                                <i class="fas fa-brain"></i>
-                                <select id="dyslexiaType">
-                                    <option value="none">None Detected</option>
-                                    <option value="dyslexia">Dyslexia</option>
-                                    <option value="dyscalculia">Dyscalculia</option>
-                                    <option value="dysgraphia">Dysgraphia</option>
-                                    <option value="dysphasia">Dysphasia</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="stu-form-group">
-                            <label for="severity">Severity</label>
-                            <div class="stu-input-box">
-                                <i class="fas fa-signal"></i>
-                                <select id="severity">
-                                    <option value="mild">Mild</option>
-                                    <option value="moderate">Moderate</option>
-                                    <option value="severe">Severe</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
 
                 <!-- ── Parent / Guardian ── -->

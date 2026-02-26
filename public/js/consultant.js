@@ -211,6 +211,7 @@ async function editStudent(id) {
             'email': student.email,
             'studentIdInput': student.studentId,
             'grade': student.grade,
+            'dateOfBirth': student.dateOfBirth ? new Date(student.dateOfBirth).toISOString().split('T')[0] : '',
             'parentName': student.parentName,
             'parentPhone': student.parentPhone,
             'parentAddress': student.parentAddress
@@ -241,6 +242,7 @@ async function submitStudentForm(e) {
         email: document.getElementById('email').value,
         studentId: document.getElementById('studentIdInput').value,
         grade: document.getElementById('grade').value,
+        dateOfBirth: document.getElementById('dateOfBirth').value || null,
         parentName: document.getElementById('parentName').value,
         parentPhone: document.getElementById('parentPhone').value,
         parentAddress: document.getElementById('parentAddress').value
@@ -861,13 +863,24 @@ function getTimeAgo(date) {
 
 async function generateUniqueStudentId() {
     try {
+        // Build prefix from consultant's name: first letter + last letter + 'S'
+        // e.g. "Ashmil" → "ALS"
+        const cName = (localStorage.getItem('userName') || 'XX').toUpperCase();
+        const prefix = cName.charAt(0) + cName.charAt(cName.length - 1) + 'S';
+
         const data = await apiRequest('/users/students?limit=1000');
         const students = data.students || [];
-        const ids = students.map(s => s.studentId).filter(id => id && id.startsWith('STU')).map(id => parseInt(id.replace('STU', ''))).filter(n => !isNaN(n));
+        const ids = students
+            .map(s => s.studentId)
+            .filter(id => id && id.startsWith(prefix))
+            .map(id => parseInt(id.replace(prefix, '')))
+            .filter(n => !isNaN(n));
         const max = ids.length > 0 ? Math.max(...ids) : 0;
-        return `STU${String(max + 1).padStart(3, '0')}`;
+        return `${prefix}${String(max + 1).padStart(3, '0')}`;
     } catch (e) {
-        return `STU${String(Date.now()).slice(-6)}`;
+        const cName = (localStorage.getItem('userName') || 'XX').toUpperCase();
+        const prefix = cName.charAt(0) + cName.charAt(cName.length - 1) + 'S';
+        return `${prefix}${String(Date.now()).slice(-3)}`;
     }
 }
 

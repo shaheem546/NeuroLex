@@ -16,7 +16,8 @@ const step1 = el('step1');
 const step2 = el('step2');
 const step3 = el('step3');
 
-const promptInput = el('promptInput');
+const letterBoxesContainer = el('letterBoxes');
+const shuffleBtn = el('shuffleBtn');
 const startBtn = el('startBtn');
 
 const displayPrompt = el('displayPrompt');
@@ -42,6 +43,51 @@ const retryBtn = el('retryBtn');
 const downloadBtn = el('downloadBtn');
 const viewProgressBtn = el('viewProgressBtn');
 const goHomeBtn = el('goHomeBtn');
+
+/* ---------------------------
+   Dyslexia Detection Letter Groups
+   --------------------------- */
+const LETTER_GROUPS = {
+  mirror: ['b', 'd', 'p', 'q', 'm', 'w', 'n', 'u'],          // Mirror / reversal letters
+  similar: ['c', 'e', 'o', 'i', 'l', 'j', 't', 'h', 'r'],     // Similar shape letters
+  sound: ['s', 'z', 'f', 'v', 'k', 'g']                       // Sound-confusing letters
+};
+const ALL_LETTERS = [...LETTER_GROUPS.mirror, ...LETTER_GROUPS.similar, ...LETTER_GROUPS.sound];
+
+let currentLetters = [];
+
+/* Pick 5 random unique letters, ensuring at least 1 from each group */
+function generateLetters() {
+  const pick = [];
+  // 1 from each group guaranteed
+  for (const group of Object.values(LETTER_GROUPS)) {
+    pick.push(group[Math.floor(Math.random() * group.length)]);
+  }
+  // Fill remaining slots with random unique letters
+  const remaining = ALL_LETTERS.filter(l => !pick.includes(l));
+  while (pick.length < 5 && remaining.length > 0) {
+    const idx = Math.floor(Math.random() * remaining.length);
+    pick.push(remaining.splice(idx, 1)[0]);
+  }
+  // Shuffle the final array
+  for (let i = pick.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pick[i], pick[j]] = [pick[j], pick[i]];
+  }
+  return pick;
+}
+
+/* Render letter boxes into the DOM */
+function renderLetterBoxes() {
+  currentLetters = generateLetters();
+  letterBoxesContainer.innerHTML = '';
+  currentLetters.forEach(letter => {
+    const box = document.createElement('div');
+    box.className = 'letter-box';
+    box.textContent = letter;
+    letterBoxesContainer.appendChild(box);
+  });
+}
 
 /* ---------------------------
    App state
@@ -102,21 +148,19 @@ function showStep(stepEl) {
 }
 
 startBtn.addEventListener('click', () => {
-  const text = promptInput.value.trim();
-  if (!text) {
-    alert('Please enter a sentence or word for the child to draw.');
-    promptInput.focus();
-    return;
-  }
+  const text = currentLetters.join('  ');
   // Set up UI for drawing step
   displayPrompt.textContent = text;
   resultPrompt.textContent = text;
   // Reset canvases and state
   initDrawingCanvas();
   drawGuideText(text);
-  // Ensure the drawing canvas overlays the prompt visually
   drawingStartTime = Date.now();
   showStep(step2);
+});
+
+shuffleBtn.addEventListener('click', () => {
+  renderLetterBoxes();
 });
 
 backToStart.addEventListener('click', () => {
@@ -219,9 +263,9 @@ submitBtn.addEventListener('click', () => {
   refCtx.fillStyle = '#ffffff';
   refCtx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
-  // Text styling similar to what a child should replicate
+  // IMPORTANT: Use the SAME font size as the guide canvas so comparison is fair
   refCtx.fillStyle = '#000000';
-  const fontSize = Math.min(120, CANVAS_H * 0.28);
+  const fontSize = Math.min(80, CANVAS_H * 0.28);
   refCtx.font = `bold ${fontSize}px "Comic Sans MS", sans-serif`;
   refCtx.textAlign = 'center';
   refCtx.textBaseline = 'middle';
@@ -278,62 +322,96 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
   }
 }
 
-/* Compare child drawing vs reference by binary overlap:
-   - Convert both images to binary masks (ink vs background) using alpha/brightness threshold
-   - Count pixels where ref is ink (referenceCount)
-   - Count pixels where both child and ref are ink (matchCount)
-   - Count union for IoU if needed
-   - Final accuracy: primarily matchCount/referenceCount, with smoothing if union differs
+/* Compare child drawing vs reference with TOLERANCE for hand-drawn variance.
+   Steps:
+   1. Build binary ink masks for both images
+   2. Dilate the reference mask by TOLERANCE pixels (so nearby strokes still count)
+   3. Compute coverage (how much dilated-ref was hit) and precision (how much child ink is near ref)
+   4. Combine into a forgiving final score
 */
 function compareBinaryOverlap(childImageData, refImageData) {
-  const width = childImageData.width;
-  const height = childImageData.height;
-  const totalPixels = width * height;
+  const w = childImageData.width;
+  const h = childImageData.height;
+  const total = w * h;
+  const TOLERANCE = 12; // pixels of wiggle room for hand-drawn strokes
 
-  let refCount = 0;
-  let matchCount = 0;
-  let unionCount = 0;
-  let childCount = 0;
+  // 1. Build binary masks
+  const refMask = new Uint8Array(total);
+  const childMask = new Uint8Array(total);
 
-  for (let i = 0; i < totalPixels; i++) {
+  for (let i = 0; i < total; i++) {
     const idx = i * 4;
-    // Determine 'ink' presence: use alpha or darkness
-    const refR = refImageData.data[idx];
-    const refG = refImageData.data[idx + 1];
-    const refB = refImageData.data[idx + 2];
-    const refA = refImageData.data[idx + 3];
+    const refLum = 0.299 * refImageData.data[idx] + 0.587 * refImageData.data[idx + 1] + 0.114 * refImageData.data[idx + 2];
+    refMask[i] = (refImageData.data[idx + 3] > 50 && refLum < 200) ? 1 : 0;
 
-    const childR = childImageData.data[idx];
-    const childG = childImageData.data[idx + 1];
-    const childB = childImageData.data[idx + 2];
-    const childA = childImageData.data[idx + 3];
-
-    // For reference: text is black on white background, so detect dark pixels
-    const refLum = (0.299 * refR + 0.587 * refG + 0.114 * refB);
-    const isRefInk = refA > 50 && refLum < 200;
-
-    // For child: detect non-white or non-transparent pixels (stroke)
-    const childLum = (0.299 * childR + 0.587 * childG + 0.114 * childB);
-    const isChildInk = childA > 50 && childLum < 250;
-
-    if (isRefInk) refCount++;
-    if (isChildInk) childCount++;
-
-    if (isRefInk || isChildInk) unionCount++;
-    if (isRefInk && isChildInk) matchCount++;
+    const childLum = 0.299 * childImageData.data[idx] + 0.587 * childImageData.data[idx + 1] + 0.114 * childImageData.data[idx + 2];
+    childMask[i] = (childImageData.data[idx + 3] > 50 && childLum < 240) ? 1 : 0;
   }
 
-  // Avoid divide-by-zero
+  // 2. Dilate reference mask by TOLERANCE — any pixel within TOLERANCE of a ref ink pixel counts
+  const dilatedRef = new Uint8Array(total);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (refMask[y * w + x]) {
+        // Mark all pixels in a square around this ref pixel
+        const yMin = Math.max(0, y - TOLERANCE);
+        const yMax = Math.min(h - 1, y + TOLERANCE);
+        const xMin = Math.max(0, x - TOLERANCE);
+        const xMax = Math.min(w - 1, x + TOLERANCE);
+        for (let dy = yMin; dy <= yMax; dy++) {
+          for (let dx = xMin; dx <= xMax; dx++) {
+            dilatedRef[dy * w + dx] = 1;
+          }
+        }
+      }
+    }
+  }
+
+  // 3. Similarly dilate child mask to check if ref ink is near child strokes
+  const dilatedChild = new Uint8Array(total);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (childMask[y * w + x]) {
+        const yMin = Math.max(0, y - TOLERANCE);
+        const yMax = Math.min(h - 1, y + TOLERANCE);
+        const xMin = Math.max(0, x - TOLERANCE);
+        const xMax = Math.min(w - 1, x + TOLERANCE);
+        for (let dy = yMin; dy <= yMax; dy++) {
+          for (let dx = xMin; dx <= xMax; dx++) {
+            dilatedChild[dy * w + dx] = 1;
+          }
+        }
+      }
+    }
+  }
+
+  // 4. Count metrics
+  let refCount = 0;
+  let childCount = 0;
+  let refCoveredByChild = 0;   // ref pixels near child strokes
+  let childNearRef = 0;        // child pixels near ref ink
+
+  for (let i = 0; i < total; i++) {
+    if (refMask[i]) {
+      refCount++;
+      if (dilatedChild[i]) refCoveredByChild++;
+    }
+    if (childMask[i]) {
+      childCount++;
+      if (dilatedRef[i]) childNearRef++;
+    }
+  }
+
   if (refCount === 0) return 0;
 
-  // Primary ratio: how much of reference was covered by child's strokes
-  const coverage = matchCount / refCount;
+  // Coverage: how much of the reference was traced (with tolerance)
+  const coverage = refCoveredByChild / refCount;
 
-  // Secondary ratio: intersection over union (penalizes extra unrelated strokes)
-  const iou = unionCount === 0 ? 0 : matchCount / unionCount;
+  // Precision: how much of child's ink is actually near the reference (penalizes wild scribbles)
+  const precision = childCount === 0 ? 0 : childNearRef / childCount;
 
-  // Combine metrics: weighted average (70% coverage, 30% IoU)
-  const finalScore = Math.max(0, Math.min(1, coverage * 0.7 + iou * 0.3));
+  // Final score: 80% coverage + 20% precision
+  const finalScore = Math.max(0, Math.min(1, coverage * 0.8 + precision * 0.2));
 
   return Math.round(finalScore * 100);
 }
@@ -502,7 +580,7 @@ function getFeedback(score) {
 
 /* Retry button resets to step1 with cleared input */
 retryBtn.addEventListener('click', () => {
-  promptInput.value = '';
+  renderLetterBoxes();
   showStep(step1);
 });
 
@@ -566,6 +644,6 @@ if (goHomeBtn) {
 (function init() {
   setTool('pen');
   initDrawingCanvas();
-  drawGuideText('Sample'); // not visible by default
+  renderLetterBoxes();
   showStep(step1);
 })();

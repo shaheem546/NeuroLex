@@ -1,0 +1,380 @@
+/* ============================================
+   Support Page Styles
+   ============================================ */
+
+/* ---- Support Layout ---- */
+.support-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.support-full-width {
+    grid-column: 1 / -1;
+}
+
+/* ---- Quick Help Cards Row ---- */
+.quick-help-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.quick-help-card {
+    background: white;
+    border-radius: 18px;
+    padding: 1.5rem 1.25rem;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.06);
+    border: 1px solid rgba(124, 58, 237, 0.08);
+    transition: all 0.3s ease;
+    cursor: default;
+}
+
+.quick-help-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 35px rgba(124, 58, 237, 0.12);
+    border-color: rgba(124, 58, 237, 0.18);
+}
+
+.quick-help-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.4rem;
+}
+
+.quick-help-icon.purple {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.12), rgba(167, 139, 250, 0.2));
+    color: #7c3aed;
+}
+
+.quick-help-icon.blue {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(96, 165, 250, 0.2));
+    color: #3b82f6;
+}
+
+.quick-help-icon.green {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(74, 222, 128, 0.2));
+    color: #22c55e;
+}
+
+.quick-help-icon.orange {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.12), rgba(251, 146, 60, 0.2));
+    color: #f97316;
+}
+
+.quick-help-card h4 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1a1d29;
+    margin-bottom: 0.3rem;
+}
+
+.quick-help-card p {
+    font-size: 0.8rem;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+/* ---- Support Card ---- */
+.support-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 24px rgba(124, 58, 237, 0.06);
+    border: 1px solid rgba(124, 58, 237, 0.08);
+    transition: box-shadow 0.3s ease;
+}
+
+.support-card:hover {
+    box-shadow: 0 8px 32px rgba(124, 58, 237, 0.10);
+}
+
+.support-card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1a1d29;
+    margin-bottom: 0.35rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.support-card-title i {
+    color: #7c3aed;
+    font-size: 1.1rem;
+}
+
+.support-card-desc {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+}
+
+/* ---- Contact Form ---- */
+.support-form-group {
+    margin-bottom: 1.1rem;
+}
+
+.support-form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.35rem;
+}
+
+.support-input,
+.support-select,
+.support-textarea {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 0.92rem;
+    color: #1a1d29;
+    background: #fafbff;
+    transition: all 0.25s ease;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+    box-sizing: border-box;
+}
+
+.support-textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.support-input:focus,
+.support-select:focus,
+.support-textarea:focus {
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.08);
+    background: white;
+}
+
+.support-select {
+    cursor: pointer;
+    appearance: auto;
+}
+
+.support-btn {
+    padding: 0.7rem 1.6rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%);
+    color: white;
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.25);
+}
+
+.support-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(124, 58, 237, 0.35);
+}
+
+.support-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ---- FAQ Section ---- */
+.faq-item {
+    border-bottom: 1px solid #f3f4f6;
+    padding: 1rem 0;
+}
+
+.faq-item:last-child {
+    border-bottom: none;
+}
+
+.faq-question {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: 0.4rem 0;
+    transition: color 0.2s;
+    user-select: none;
+}
+
+.faq-question h4 {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: #1a1d29;
+    margin: 0;
+    flex: 1;
+}
+
+.faq-question i {
+    color: #7c3aed;
+    font-size: 0.85rem;
+    transition: transform 0.3s ease;
+    flex-shrink: 0;
+    margin-left: 1rem;
+}
+
+.faq-question:hover h4 {
+    color: #7c3aed;
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease, padding 0.35s ease;
+    font-size: 0.85rem;
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+.faq-item.open .faq-answer {
+    max-height: 300px;
+    padding-top: 0.5rem;
+}
+
+.faq-item.open .faq-question i {
+    transform: rotate(180deg);
+}
+
+/* ---- Contact Info Cards ---- */
+.contact-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.contact-method {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 1rem;
+    background: #fafbff;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    transition: all 0.25s ease;
+}
+
+.contact-method:hover {
+    border-color: rgba(124, 58, 237, 0.12);
+    background: rgba(124, 58, 237, 0.03);
+}
+
+.contact-method-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.contact-method-icon.purple {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(167, 139, 250, 0.15));
+    color: #7c3aed;
+}
+
+.contact-method-icon.green {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(74, 222, 128, 0.15));
+    color: #22c55e;
+}
+
+.contact-method-icon.blue {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(96, 165, 250, 0.15));
+    color: #3b82f6;
+}
+
+.contact-method-text h5 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #1a1d29;
+    margin-bottom: 0.1rem;
+}
+
+.contact-method-text p {
+    font-size: 0.78rem;
+    color: #9ca3af;
+}
+
+/* ---- Status badges ---- */
+.status-badge {
+    display: inline-block;
+    padding: 0.3rem 0.7rem;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.status-badge.open {
+    background: rgba(249, 115, 22, 0.1);
+    color: #f97316;
+}
+
+.status-badge.resolved {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+}
+
+.status-badge.pending {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+/* ---- Success Message ---- */
+.support-success {
+    display: none;
+    text-align: center;
+    padding: 2rem;
+}
+
+.support-success i {
+    font-size: 3rem;
+    color: #22c55e;
+    margin-bottom: 1rem;
+}
+
+.support-success h3 {
+    color: #1a1d29;
+    font-size: 1.1rem;
+    margin-bottom: 0.4rem;
+}
+
+.support-success p {
+    color: #6b7280;
+    font-size: 0.88rem;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 900px) {
+    .support-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .quick-help-row {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .quick-help-row {
+        grid-template-columns: 1fr;
+    }
+}

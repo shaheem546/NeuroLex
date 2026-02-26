@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Consultant Dashboard - Manage students and dyslexia assessments">
+    <meta name="description"
+        content="Resources - Dyslexia tools, guides, articles, exercises, and support materials for consultants">
     <title>Resources - Dyslexia Detection Platform</title>
 
     <!-- Google Fonts -->
@@ -17,9 +18,7 @@
 
     <!-- External Stylesheets -->
     <link rel="stylesheet" href="css/consultant.css">
-
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="css/resources.css">
 </head>
 
 <body>
@@ -72,56 +71,311 @@
                 <!-- Header -->
                 <div class="dashboard-header">
                     <div class="welcome-text">
-                        <h1>Resources & Materials</h1>
+                        <h1><i class="fas fa-book-open" style="color:#7c3aed; margin-right:0.5rem;"></i> Resources &
+                            Materials</h1>
+                    </div>
+                    <div class="header-actions">
+                        <button class="logout-btn-header" id="headerLogoutBtn" title="Logout">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Dashboard Main Section (Hidden) -->
-                <div id="dashboardMainSection" style="display: none;"></div>
+                <!-- Search + Filter Row -->
+                <div class="resources-header-row">
+                    <div class="resources-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="resourceSearch" placeholder="Search resources...">
+                    </div>
+                </div>
 
-                <!-- Content Grid -->
-                <div class="content-grid">
-                    <div id="resourcesSection">
-                        <div class="content-header">
-                            <h2>Study Materials & Support Tools</h2>
-                            <p class="text-gray">Guides and assistants for dyslexia management.</p>
+                <!-- Filter Tabs -->
+                <div class="resources-filter">
+                    <button class="filter-tab active" data-filter="all">
+                        <i class="fas fa-th-large"></i> All
+                    </button>
+                    <button class="filter-tab" data-filter="guide">
+                        <i class="fas fa-book"></i> Guides
+                    </button>
+                    <button class="filter-tab" data-filter="tool">
+                        <i class="fas fa-tools"></i> Tools
+                    </button>
+                    <button class="filter-tab" data-filter="article">
+                        <i class="fas fa-newspaper"></i> Articles
+                    </button>
+                    <button class="filter-tab" data-filter="exercise">
+                        <i class="fas fa-dumbbell"></i> Exercises
+                    </button>
+                    <button class="filter-tab" data-filter="video">
+                        <i class="fas fa-video"></i> Videos
+                    </button>
+                    <button class="filter-tab" data-filter="worksheet">
+                        <i class="fas fa-file-alt"></i> Worksheets
+                    </button>
+                </div>
+
+                <!-- Resources Grid -->
+                <div class="resources-grid" id="resourcesGrid">
+
+                    <!-- 1. Understanding Dyslexia Guide -->
+                    <div class="resource-card" data-category="guide">
+                        <div class="resource-icon purple">
+                            <i class="fas fa-brain"></i>
                         </div>
-
-                        <div class="resources-grid"
-                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
-                            <!-- Reading Tools -->
-                            <div class="resource-card"
-                                style="background: white; padding: 1.5rem; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
-                                <div class="resource-icon"
-                                    style="width: 50px; height: 50px; background: rgba(124, 58, 237, 0.1); color: #7c3aed; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1rem;">
-                                    <i class="fas fa-book-reader"></i>
-                                </div>
-                                <h3 style="margin-bottom: 0.5rem; color: #1a1d29;">Reading Assistants</h3>
-                                <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 1rem;">Tools for text
-                                    decoding.</p>
-                                <ul style="list-style: none; padding: 0;">
-                                    <li style="margin-bottom: 0.5rem;"><a href="#" style="color: #7c3aed;">OpenDyslexic
-                                            Font</a></li>
-                                    <li><a href="#" style="color: #7c3aed;">Speechify</a></li>
-                                </ul>
-                            </div>
+                        <span class="resource-badge guide">Guide</span>
+                        <h3>Understanding Dyslexia</h3>
+                        <p class="resource-desc">A comprehensive guide covering the types, signs, and scientific
+                            research behind dyslexia. Essential reading for new consultants.</p>
+                        <div class="resource-links">
+                            <a href="https://www.understood.org/en/articles/understanding-dyslexia" target="_blank"
+                                class="resource-link">
+                                <i class="fas fa-external-link-alt"></i> Understood.org Guide
+                            </a>
+                            <a href="https://dyslexiaida.org/dyslexia-basics/" target="_blank" class="resource-link">
+                                <i class="fas fa-external-link-alt"></i> IDA Dyslexia Basics
+                            </a>
                         </div>
                     </div>
 
-                    <!-- Hidden Sections -->
-                    <div id="studentsSection" style="display: none;"></div>
-                    <div id="supportSection" style="display: none;"></div>
-                    <div id="analyticsSection" style="display: none;"></div>
+                    <!-- 2. Reading Assistants (Tools) -->
+                    <div class="resource-card" data-category="tool">
+                        <div class="resource-icon blue">
+                            <i class="fas fa-book-reader"></i>
+                        </div>
+                        <span class="resource-badge tool">Tool</span>
+                        <h3>Reading Assistant Tools</h3>
+                        <p class="resource-desc">Assistive technology tools that help with text decoding, reading
+                            fluency, and comprehension for dyslexic readers.</p>
+                        <div class="resource-links">
+                            <a href="https://opendyslexic.org/" target="_blank" class="resource-link">
+                                <i class="fas fa-font"></i> OpenDyslexic Font
+                            </a>
+                            <a href="https://speechify.com/" target="_blank" class="resource-link">
+                                <i class="fas fa-headphones"></i> Speechify (Text-to-Speech)
+                            </a>
+                            <a href="https://www.naturalreaders.com/" target="_blank" class="resource-link">
+                                <i class="fas fa-volume-up"></i> NaturalReader
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 3. Screening & Assessment Tools -->
+                    <div class="resource-card" data-category="tool">
+                        <div class="resource-icon green">
+                            <i class="fas fa-clipboard-check"></i>
+                        </div>
+                        <span class="resource-badge tool">Tool</span>
+                        <h3>Screening & Assessment</h3>
+                        <p class="resource-desc">Reliable screening tools and checklists used by educators to identify
+                            early signs of dyslexia in children.</p>
+                        <div class="resource-links">
+                            <a href="https://www.nessy.com/uk/dyslexia-quest/" target="_blank" class="resource-link">
+                                <i class="fas fa-gamepad"></i> Nessy Dyslexia Quest
+                            </a>
+                            <a href="https://dyslexiaida.org/screening-for-dyslexia/" target="_blank"
+                                class="resource-link">
+                                <i class="fas fa-search"></i> IDA Screening Guidelines
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 4. Phonological Awareness Exercises -->
+                    <div class="resource-card" data-category="exercise">
+                        <div class="resource-icon orange">
+                            <i class="fas fa-puzzle-piece"></i>
+                        </div>
+                        <span class="resource-badge exercise">Exercise</span>
+                        <h3>Phonological Awareness</h3>
+                        <p class="resource-desc">Activities and exercises to help build phonemic awareness — rhyming,
+                            segmenting, blending, and sound manipulation.</p>
+                        <div class="resource-links">
+                            <a href="https://www.readingrockets.org/topics/phonological-and-phonemic-awareness"
+                                target="_blank" class="resource-link">
+                                <i class="fas fa-rocket"></i> Reading Rockets Activities
+                            </a>
+                            <a href="https://www.starfall.com/h/index-load.htm" target="_blank" class="resource-link">
+                                <i class="fas fa-star"></i> Starfall Phonics
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 5. Dyslexia Research Articles -->
+                    <div class="resource-card" data-category="article">
+                        <div class="resource-icon green">
+                            <i class="fas fa-flask"></i>
+                        </div>
+                        <span class="resource-badge article">Article</span>
+                        <h3>Latest Research</h3>
+                        <p class="resource-desc">Peer-reviewed research articles and recent studies on dyslexia, its
+                            neurological basis, and intervention strategies.</p>
+                        <div class="resource-links">
+                            <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6010278/" target="_blank"
+                                class="resource-link">
+                                <i class="fas fa-file-medical-alt"></i> Neural Basis of Dyslexia (NIH)
+                            </a>
+                            <a href="https://www.sciencedirect.com/topics/neuroscience/dyslexia" target="_blank"
+                                class="resource-link">
+                                <i class="fas fa-graduation-cap"></i> ScienceDirect Dyslexia
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 6. Teaching Strategies Guide -->
+                    <div class="resource-card" data-category="guide">
+                        <div class="resource-icon purple">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                        </div>
+                        <span class="resource-badge guide">Guide</span>
+                        <h3>Teaching Strategies</h3>
+                        <p class="resource-desc">Evidence-based multisensory teaching approaches including
+                            Orton-Gillingham, Wilson Reading, and structured literacy methods.</p>
+                        <div class="resource-links">
+                            <a href="https://www.ortonacademy.org/resources/" target="_blank" class="resource-link">
+                                <i class="fas fa-handshake"></i> Orton-Gillingham Academy
+                            </a>
+                            <a href="https://www.readingrockets.org/topics/dyslexia" target="_blank"
+                                class="resource-link">
+                                <i class="fas fa-rocket"></i> Reading Rockets - Dyslexia
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 7. Video Resources -->
+                    <div class="resource-card" data-category="video">
+                        <div class="resource-icon pink">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                        <span class="resource-badge video">Video</span>
+                        <h3>Video Library</h3>
+                        <p class="resource-desc">Educational videos explaining dyslexia for parents, teachers, and
+                            students — from TED talks to expert interviews.</p>
+                        <div class="resource-links">
+                            <a href="https://www.youtube.com/watch?v=zafiGBrFkRM" target="_blank" class="resource-link">
+                                <i class="fab fa-youtube"></i> What is Dyslexia? (TED-Ed)
+                            </a>
+                            <a href="https://www.youtube.com/watch?v=11r7CFlK2sc" target="_blank" class="resource-link">
+                                <i class="fab fa-youtube"></i> The Gift of Dyslexia
+                            </a>
+                            <a href="https://www.youtube.com/watch?v=VK_4SwoXYCE" target="_blank" class="resource-link">
+                                <i class="fab fa-youtube"></i> How Dyslexia Affects the Brain
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 8. Handwriting Practice Worksheets -->
+                    <div class="resource-card" data-category="worksheet">
+                        <div class="resource-icon cyan">
+                            <i class="fas fa-pencil-alt"></i>
+                        </div>
+                        <span class="resource-badge worksheet">Worksheet</span>
+                        <h3>Handwriting Practice</h3>
+                        <p class="resource-desc">Printable worksheets for letter formation, tracing exercises, and fine
+                            motor skill development for dysgraphia support.</p>
+                        <div class="resource-links">
+                            <a href="https://www.education.com/worksheets/handwriting/" target="_blank"
+                                class="resource-link">
+                                <i class="fas fa-download"></i> Education.com Worksheets
+                            </a>
+                            <a href="https://www.k5learning.com/free-preschool-kindergarten-worksheets/letters-alphabet/tracing-letters"
+                                target="_blank" class="resource-link">
+                                <i class="fas fa-download"></i> K5 Learning - Letter Tracing
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 9. Writing Support Tools -->
+                    <div class="resource-card" data-category="tool">
+                        <div class="resource-icon blue">
+                            <i class="fas fa-keyboard"></i>
+                        </div>
+                        <span class="resource-badge tool">Tool</span>
+                        <h3>Writing Support</h3>
+                        <p class="resource-desc">Assistive writing tools with spell-check, grammar help, and
+                            speech-to-text for students who struggle with writing.</p>
+                        <div class="resource-links">
+                            <a href="https://www.grammarly.com/" target="_blank" class="resource-link">
+                                <i class="fas fa-spell-check"></i> Grammarly
+                            </a>
+                            <a href="https://www.co-writer.com/" target="_blank" class="resource-link">
+                                <i class="fas fa-pen-fancy"></i> Co:Writer (Word Predictor)
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 10. Math & Dyscalculia -->
+                    <div class="resource-card" data-category="exercise">
+                        <div class="resource-icon orange">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <span class="resource-badge exercise">Exercise</span>
+                        <h3>Math & Dyscalculia Support</h3>
+                        <p class="resource-desc">Activities and tools for students with dyscalculia — visual math aids,
+                            manipulatives, and number sense games.</p>
+                        <div class="resource-links">
+                            <a href="https://www.understood.org/en/articles/understanding-dyscalculia" target="_blank"
+                                class="resource-link">
+                                <i class="fas fa-info-circle"></i> Understanding Dyscalculia
+                            </a>
+                            <a href="https://www.splashlearn.com/" target="_blank" class="resource-link">
+                                <i class="fas fa-gamepad"></i> SplashLearn Math Games
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 11. Parent Guide -->
+                    <div class="resource-card" data-category="guide">
+                        <div class="resource-icon purple">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <span class="resource-badge guide">Guide</span>
+                        <h3>Parent & Family Guide</h3>
+                        <p class="resource-desc">Resources for parents to understand dyslexia, support their children at
+                            home, and advocate for accommodations in school.</p>
+                        <div class="resource-links">
+                            <a href="https://www.understood.org/en/articles/a-parents-guide-to-dyslexia" target="_blank"
+                                class="resource-link">
+                                <i class="fas fa-heart"></i> Parent's Guide (Understood)
+                            </a>
+                            <a href="https://dyslexiaida.org/dyslexia-at-a-glance/" target="_blank"
+                                class="resource-link">
+                                <i class="fas fa-file-pdf"></i> Dyslexia At a Glance (IDA)
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- 12. Reading Worksheets -->
+                    <div class="resource-card" data-category="worksheet">
+                        <div class="resource-icon cyan">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <span class="resource-badge worksheet">Worksheet</span>
+                        <h3>Reading Comprehension</h3>
+                        <p class="resource-desc">Leveled reading passages with comprehension questions, designed with
+                            dyslexia-friendly formatting and spacing.</p>
+                        <div class="resource-links">
+                            <a href="https://www.readingcomprehensionworksheets.org/" target="_blank"
+                                class="resource-link">
+                                <i class="fas fa-download"></i> Comprehension Worksheets
+                            </a>
+                            <a href="https://www.readworks.org/" target="_blank" class="resource-link">
+                                <i class="fas fa-download"></i> ReadWorks (Free Articles)
+                            </a>
+                        </div>
+                    </div>
+
                 </div>
+
+                <!-- Empty state (hidden by default) -->
+                <div class="resources-empty" id="resourcesEmpty" style="display: none;">
+                    <i class="fas fa-search"></i>
+                    <p>No resources found matching your search.</p>
+                </div>
+
             </main>
         </div>
     </div>
 
-    <!-- Modals -->
-    <div class="modal-overlay" id="studentModal" style="display:none"></div>
-    <div class="modal-overlay" id="testModal" style="display:none"></div>
-
-    <script src="js/consultant.js"></script>
+    <script src="js/resources.js"></script>
 </body>
 
 </html>

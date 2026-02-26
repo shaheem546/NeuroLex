@@ -17,15 +17,18 @@
   </header>
 
   <main class="container">
-    <!-- STEP 1: Text Input -->
+    <!-- STEP 1: Auto-generated Letters -->
     <section id="step1" class="card visible">
-      <h2 class="card-title">Enter the prompt</h2>
-      <textarea id="promptInput" class="prompt-input" placeholder="Enter a sentence or word for the child to draw..."
-        rows="5" maxlength="200"></textarea>
+      <h2 class="card-title">Draw These Letters</h2>
+      <p class="letter-instructions">The letters below are selected for dyslexia screening. Ask the child to draw each
+        letter on the canvas.</p>
+      <div id="letterBoxes" class="letter-boxes"></div>
       <div class="actions">
+        <button id="shuffleBtn" class="btn"><i class="fas fa-shuffle"></i> Shuffle Letters</button>
         <button id="startBtn" class="btn primary">Start Test</button>
       </div>
-      <p class="hint">Tip: Use short sentences or single words for younger children.</p>
+      <p class="hint">Letters are chosen from mirror, similar-shape, and sound-confusing groups used in dyslexia
+        detection.</p>
     </section>
 
     <!-- STEP 2: Drawing -->
