@@ -52,15 +52,44 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
-// Connect to MongoDB
+// Connect to MongoDB — with connection caching for Vercel serverless.
+// On serverless each invocation may reuse the same Node process, so we
+// skip reconnecting if a connection is already open (readyState 1).
 const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/dyslexia_detection';
-mongoose.connect(mongoUri, {
-}).then(() => {
-  console.log('✅ Connected to MongoDB');
-}).catch((err) => {
-  console.error('❌ MongoDB connection error:', err.message);
-  // Don't crash on Vercel serverless — let requests fail gracefully
+
+let _mongoConnected = false;
+
+async function connectDB() {
+  if (_mongoConnected && mongoose.connection.readyState === 1) return;
+  try {
+    await mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+    });
+    _mongoConnected = true;
+    console.log('✅ Connected to MongoDB');
+  } catch (err) {
+    console.error('❌ MongoDB connection error:', err.message);
+    _mongoConnected = false;
+    throw err;
+  }
+}
+
+// Connect immediately on startup (works for both local and Vercel)
+connectDB().catch(err => {
+  console.error('Initial MongoDB connect failed:', err.message);
   if (!process.env.VERCEL) process.exit(1);
+});
+
+// Middleware: ensure DB is connected before every request (handles cold starts)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('DB connection failed on request:', err.message);
+    res.status(503).json({ status: 'error', message: 'Database unavailable. Please try again.' });
+  }
 });
 
 // API routes
