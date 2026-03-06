@@ -322,20 +322,21 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
   }
 }
 
-/* Compare child drawing vs reference with TOLERANCE for hand-drawn variance.
-   Steps:
+/* Compare child drawing vs reference using strict overlap analysis.
+   The algorithm:
    1. Build binary ink masks for both images
-   2. Dilate the reference mask by TOLERANCE pixels (so nearby strokes still count)
-   3. Compute coverage (how much dilated-ref was hit) and precision (how much child ink is near ref)
-   4. Combine into a forgiving final score
+   2. Dilate masks by a small tolerance (5px) for hand-drawn variance
+   3. Compute recall (coverage of reference) and precision (child ink on target)
+   4. Combine using F1-score (harmonic mean) — both must be high for a good score
+   5. Apply penalties for too-little ink or too-much extraneous ink
 */
 function compareBinaryOverlap(childImageData, refImageData) {
   const w = childImageData.width;
   const h = childImageData.height;
   const total = w * h;
-  const TOLERANCE = 12; // pixels of wiggle room for hand-drawn strokes
+  const TOLERANCE = 5; // tight tolerance — child must draw close to the letters
 
-  // 1. Build binary masks
+  // 1. Build binary ink masks
   const refMask = new Uint8Array(total);
   const childMask = new Uint8Array(total);
 
@@ -348,12 +349,25 @@ function compareBinaryOverlap(childImageData, refImageData) {
     childMask[i] = (childImageData.data[idx + 3] > 50 && childLum < 240) ? 1 : 0;
   }
 
-  // 2. Dilate reference mask by TOLERANCE — any pixel within TOLERANCE of a ref ink pixel counts
+  // Count total ink pixels
+  let refCount = 0;
+  let childCount = 0;
+  for (let i = 0; i < total; i++) {
+    if (refMask[i]) refCount++;
+    if (childMask[i]) childCount++;
+  }
+
+  // If reference has no ink, return 0
+  if (refCount === 0) return 0;
+
+  // If child drew nothing or almost nothing, return 0
+  if (childCount < refCount * 0.05) return 0;
+
+  // 2. Dilate reference mask by TOLERANCE
   const dilatedRef = new Uint8Array(total);
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       if (refMask[y * w + x]) {
-        // Mark all pixels in a square around this ref pixel
         const yMin = Math.max(0, y - TOLERANCE);
         const yMax = Math.min(h - 1, y + TOLERANCE);
         const xMin = Math.max(0, x - TOLERANCE);
@@ -367,7 +381,7 @@ function compareBinaryOverlap(childImageData, refImageData) {
     }
   }
 
-  // 3. Similarly dilate child mask to check if ref ink is near child strokes
+  // 3. Dilate child mask by TOLERANCE
   const dilatedChild = new Uint8Array(total);
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
@@ -385,33 +399,44 @@ function compareBinaryOverlap(childImageData, refImageData) {
     }
   }
 
-  // 4. Count metrics
-  let refCount = 0;
-  let childCount = 0;
-  let refCoveredByChild = 0;   // ref pixels near child strokes
-  let childNearRef = 0;        // child pixels near ref ink
+  // 4. Count overlap metrics
+  let refCoveredByChild = 0;   // ref pixels near child strokes (recall)
+  let childNearRef = 0;        // child pixels near ref ink (precision)
 
   for (let i = 0; i < total; i++) {
-    if (refMask[i]) {
-      refCount++;
-      if (dilatedChild[i]) refCoveredByChild++;
-    }
-    if (childMask[i]) {
-      childCount++;
-      if (dilatedRef[i]) childNearRef++;
-    }
+    if (refMask[i] && dilatedChild[i]) refCoveredByChild++;
+    if (childMask[i] && dilatedRef[i]) childNearRef++;
   }
 
-  if (refCount === 0) return 0;
+  // Recall: how much of the reference letters were traced
+  const recall = refCoveredByChild / refCount;
 
-  // Coverage: how much of the reference was traced (with tolerance)
-  const coverage = refCoveredByChild / refCount;
-
-  // Precision: how much of child's ink is actually near the reference (penalizes wild scribbles)
+  // Precision: how much of child's ink is actually on/near the letters
   const precision = childCount === 0 ? 0 : childNearRef / childCount;
 
-  // Final score: 80% coverage + 20% precision
-  const finalScore = Math.max(0, Math.min(1, coverage * 0.8 + precision * 0.2));
+  // 5. F1-Score: harmonic mean of recall and precision
+  // Both must be high — drawing random lines gives low recall, scribbling everywhere gives low precision
+  let f1 = 0;
+  if (recall + precision > 0) {
+    f1 = (2 * recall * precision) / (recall + precision);
+  }
+
+  // 6. Apply penalties
+
+  // Ink ratio penalty: if child drew way too little ink compared to reference,
+  // they likely didn't attempt to write the letters properly
+  const inkRatio = childCount / refCount;
+  let inkPenalty = 1.0;
+  if (inkRatio < 0.15) {
+    // Very little ink — strong penalty
+    inkPenalty = inkRatio / 0.15;
+  } else if (inkRatio > 5.0) {
+    // Way too much ink (wild scribbling) — moderate penalty
+    inkPenalty = Math.max(0.3, 5.0 / inkRatio);
+  }
+
+  // Apply penalties to F1 score
+  const finalScore = Math.max(0, Math.min(1, f1 * inkPenalty));
 
   return Math.round(finalScore * 100);
 }

@@ -5,11 +5,20 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
 const fs = require('fs');
-require('dotenv').config({ path: path.join(__dirname, 'config.env') });
 
-// Fix: Node v25 SRV DNS resolution issue with MongoDB Atlas
-const dns = require('dns');
-dns.setServers(['8.8.8.8', '8.8.4.4']);
+// Load .env file if it exists (won't exist on Vercel — env vars are set in dashboard)
+const envPath = path.join(__dirname, 'config.env');
+if (fs.existsSync(envPath)) {
+  require('dotenv').config({ path: envPath });
+}
+
+// Fix: Node v25 SRV DNS resolution issue with MongoDB Atlas (skip on Vercel serverless)
+if (!process.env.VERCEL) {
+  try {
+    const dns = require('dns');
+    dns.setServers(['8.8.8.8', '8.8.4.4']);
+  } catch (_e) { /* ignore */ }
+}
 
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
@@ -33,7 +42,7 @@ app.use(helmet({
   }
 }));
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  origin: process.env.FRONTEND_URL || ['http://localhost:3000', 'http://localhost:5000', 'https://neurolex.tech', 'https://www.neurolex.tech'],
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -50,7 +59,8 @@ mongoose.connect(mongoUri, {
   console.log('✅ Connected to MongoDB');
 }).catch((err) => {
   console.error('❌ MongoDB connection error:', err.message);
-  process.exit(1);
+  // Don't crash on Vercel serverless — let requests fail gracefully
+  if (!process.env.VERCEL) process.exit(1);
 });
 
 // API routes
@@ -95,10 +105,13 @@ app.use((err, _req, res, _next) => {
   });
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+// Only start listening when running locally (not on Vercel serverless)
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+  });
+}
 
+// Export for Vercel serverless
 module.exports = app;
-// Trigger restart

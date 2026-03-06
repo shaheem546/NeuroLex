@@ -300,6 +300,34 @@ async function exportData(format = 'json') {
     }
 }
 
+// ---- Export Results (Level 1 & Level 2 Assessment Results) ----
+async function exportResults() {
+    try {
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${API_BASE}/api/settings/export-results`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.message || 'Export failed');
+        }
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'neurolex-results.csv';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        showToast('Assessment results exported as CSV');
+    } catch (err) {
+        showToast(err.message || 'Export failed', 'error');
+    }
+}
+
 // ---- Clear Cache ----
 function clearCache() {
     if (!confirm('This will clear all local preferences (theme, font size, notifications). Continue?')) return;
@@ -361,6 +389,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Download data sheet
     const downloadSheetBtn = document.getElementById('downloadSheetBtn');
     if (downloadSheetBtn) downloadSheetBtn.addEventListener('click', () => exportData('csv'));
+
+    // Download results (Level 1 & Level 2)
+    const downloadResultsBtn = document.getElementById('downloadResultsBtn');
+    if (downloadResultsBtn) downloadResultsBtn.addEventListener('click', exportResults);
 
     // Clear cache
     const clearCacheBtn = document.getElementById('clearCacheBtn');

@@ -52,7 +52,7 @@ async function loadAnalytics() {
             updateDashboardStats(analytics);
         }
 
-        // Update basic stats
+        // Update basic stats (dashboard page IDs)
         const totalEl = document.getElementById('totalStudents');
         const activeEl = document.getElementById('activeStudents');
         const needingEl = document.getElementById('needingSupport');
@@ -61,8 +61,19 @@ async function loadAnalytics() {
         if (activeEl) activeEl.textContent = analytics.activeStudents || 0;
         if (needingEl) needingEl.textContent = analytics.studentsNeedingSupport || 0;
 
-        // Update dyslexia distribution
+        // Update student page stat boxes (students.html IDs)
         const breakdown = analytics.dyslexiaBreakdown || {};
+        const statTotal = document.getElementById('statTotal');
+        const statAssessed = document.getElementById('statAssessed');
+        const statNeedAttention = document.getElementById('statNeedAttention');
+        const statNone = document.getElementById('statNone');
+
+        if (statTotal) statTotal.textContent = analytics.totalStudents != null ? analytics.totalStudents : 0;
+        if (statAssessed) statAssessed.textContent = analytics.activeStudents != null ? analytics.activeStudents : 0;
+        if (statNeedAttention) statNeedAttention.textContent = analytics.studentsNeedingSupport != null ? analytics.studentsNeedingSupport : 0;
+        if (statNone) statNone.textContent = breakdown.none != null ? breakdown.none : 0;
+
+        // Update dyslexia distribution
         updateDyslexiaDistribution(breakdown);
 
     } catch (error) {

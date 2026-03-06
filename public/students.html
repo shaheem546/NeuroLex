@@ -94,7 +94,7 @@
                     <div class="stu-stat-card purple">
                         <div class="stu-stat-icon"><i class="fas fa-users"></i></div>
                         <div class="stu-stat-info">
-                            <span class="stu-stat-value" id="statTotal">—</span>
+                            <span class="stu-stat-value" id="statTotal">0</span>
                             <span class="stu-stat-label">Total Students</span>
                         </div>
                         <div class="stu-stat-bg-icon"><i class="fas fa-users"></i></div>
@@ -102,7 +102,7 @@
                     <div class="stu-stat-card blue">
                         <div class="stu-stat-icon"><i class="fas fa-clipboard-check"></i></div>
                         <div class="stu-stat-info">
-                            <span class="stu-stat-value" id="statAssessed">—</span>
+                            <span class="stu-stat-value" id="statAssessed">0</span>
                             <span class="stu-stat-label">Assessed</span>
                         </div>
                         <div class="stu-stat-bg-icon"><i class="fas fa-clipboard-check"></i></div>
@@ -110,7 +110,7 @@
                     <div class="stu-stat-card red">
                         <div class="stu-stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
                         <div class="stu-stat-info">
-                            <span class="stu-stat-value" id="statNeedAttention">—</span>
+                            <span class="stu-stat-value" id="statNeedAttention">0</span>
                             <span class="stu-stat-label">Need Attention</span>
                         </div>
                         <div class="stu-stat-bg-icon"><i class="fas fa-exclamation-triangle"></i></div>
@@ -118,7 +118,7 @@
                     <div class="stu-stat-card green">
                         <div class="stu-stat-icon"><i class="fas fa-check-circle"></i></div>
                         <div class="stu-stat-info">
-                            <span class="stu-stat-value" id="statNone">—</span>
+                            <span class="stu-stat-value" id="statNone">0</span>
                             <span class="stu-stat-label">No Issues</span>
                         </div>
                         <div class="stu-stat-bg-icon"><i class="fas fa-check-circle"></i></div>
@@ -369,20 +369,7 @@
     <script src="js/consultant.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const token = localStorage.getItem('token') || '';
-            fetch('/api/users/analytics', { headers: { 'Authorization': 'Bearer ' + token } })
-                .then(r => r.ok ? r.json() : null)
-                .then(json => {
-                    if (!json) return;
-                    const a = json.analytics || {};
-                    const bd = a.dyslexiaBreakdown || {};
-                    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-                    set('statTotal', a.totalStudents || 0);
-                    set('statAssessed', a.activeStudents || 0);
-                    set('statNeedAttention', a.studentsNeedingSupport || 0);
-                    set('statNone', bd.none || 0);
-                }).catch(() => { });
-
+            // Filter pills for student table
             document.querySelectorAll('.stu-filter-pill').forEach(pill => {
                 pill.addEventListener('click', function () {
                     document.querySelectorAll('.stu-filter-pill').forEach(p => p.classList.remove('active'));
