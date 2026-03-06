@@ -1,0 +1,21 @@
+User-agent: *
+
+# Allow public pages
+Allow: /$
+Allow: /index.html
+Allow: /student-login.html
+Allow: /reset-password.html
+Allow: /sitemap.xml
+
+# Block private/authenticated pages
+Disallow: /consultant-dashboard.html
+Disallow: /students.html
+Disallow: /analytics.html
+Disallow: /settings.html
+Disallow: /support.html
+Disallow: /resources.html
+Disallow: /progress.html
+Disallow: /game/
+
+# Sitemap location
+Sitemap: https://www.neurolex.tech/sitemap.xml
